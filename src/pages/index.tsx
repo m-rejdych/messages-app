@@ -1,7 +1,13 @@
 import type { NextPage } from 'next';
 
-const Home: NextPage = () => {
-  return <div>Hi</div>;
-}
+import { trpc } from '../utils/trpc';
 
-export default Home; 
+const Home: NextPage = () => {
+  const { data } = trpc.hello.useQuery({ name: 'Me' });
+
+  if (!data) return null;
+
+  return <div>{data}</div>;
+};
+
+export default Home;
