@@ -10,7 +10,7 @@ const Home: NextPage = () => (
           Create spaces, channels or send direct messages. Sign in and start
           chatting with your friends or co-workers.
         </p>
-        <Link href="/login" className="btn btn-primary">
+        <Link href="/auth/login?callbackUrl=/" className="btn btn-primary">
           Get Started
         </Link>
       </div>
