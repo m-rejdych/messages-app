@@ -7,7 +7,7 @@ const Home: NextPage = () => {
 
   if (!data) return null;
 
-  return <div>{data}</div>;
+  return <h1 className="bg-red-100">{data}</h1>;
 };
 
 export default Home;
