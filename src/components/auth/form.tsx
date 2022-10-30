@@ -19,7 +19,11 @@ type FieldValues = Record<
 const AuthForm: FC = () => {
   const router = useRouter();
   const isRegistering = router.pathname.includes('/register');
-  const { register, handleSubmit } = useForm<FieldValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FieldValues>({
     defaultValues: isRegistering ? REGISTER_DEFAULTS : LOGIN_DEFAULTS,
   });
 
@@ -41,19 +45,20 @@ const AuthForm: FC = () => {
 
   return (
     <div className="card w-full max-w-sm shadow-2xl bg-base-100">
-      <form onSubmit={handleSubmit(handleSubmitForm)}>
+      <form onSubmit={handleSubmit(handleSubmitForm)} noValidate>
         <div className="card-body">
           {(isRegistering ? REGISTER_FIELDS : LOGIN_FIELDS).map(
             ({ name, registerOptions, inputProps }) => (
               <Input
                 key={name}
+                error={errors[name]?.message}
                 {...inputProps}
                 {...register(name, registerOptions)}
               />
             ),
           )}
           <div className="form-control mt-6">
-            <button className="btn btn-primary">
+            <button className="btn btn-primary" type="submit">
               {isRegistering ? 'Register' : 'Login'}
             </button>
           </div>

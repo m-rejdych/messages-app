@@ -26,7 +26,10 @@ export const LOGIN_FIELDS: Field<keyof typeof LOGIN_DEFAULTS>[] = [
   {
     name: 'email',
     registerOptions: {
-      required: true,
+      required: {
+        message: 'Email is required.',
+        value: true,
+      },
       pattern: {
         message: 'Invalid email.',
         value: EMAIL_REGEXP,
@@ -41,7 +44,10 @@ export const LOGIN_FIELDS: Field<keyof typeof LOGIN_DEFAULTS>[] = [
   {
     name: 'password',
     registerOptions: {
-      required: true,
+      required: {
+        message: 'Password is required.',
+        value: true,
+      },
     },
     inputProps: {
       type: 'password',
@@ -58,7 +64,10 @@ export const REGISTER_FIELDS: Field<keyof typeof REGISTER_DEFAULTS>[] = [
   {
     name: 'username',
     registerOptions: {
-      required: true,
+      required: {
+        message: 'Username is required.',
+        value: true,
+      },
       minLength: {
         message: 'Username should be at least 3 characters long.',
         value: 3,

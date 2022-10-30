@@ -1,4 +1,4 @@
-import { type FC, forwardRef } from 'react';
+import { forwardRef } from 'react';
 import Link from 'next/link';
 import classNames from 'classnames';
 
@@ -6,7 +6,7 @@ import type { InputProps } from '../../types/common/input';
 
 // eslint-disable-next-line react/display-name
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, className, helperText, ...rest }, ref) => (
+  ({ label, error, className, helperText, ...rest }, ref) => (
     <div className="form-control">
       {label && (
         <label className="label" htmlFor={rest.name ?? undefined}>
@@ -16,8 +16,17 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       <input
         {...rest}
         ref={ref}
-        className={classNames('input input-bordered', className)}
+        formNoValidate
+        className={classNames(
+          `input input-bordered ${error && 'input-error'}`,
+          className,
+        )}
       />
+      {error && (
+        <label className="label">
+          <span className="label-text-alt text-error">{error}</span>
+        </label>
+      )}
       {helperText && (
         <label className="label">
           {helperText.href ? (
