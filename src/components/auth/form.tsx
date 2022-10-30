@@ -10,6 +10,7 @@ import {
   REGISTER_DEFAULTS,
   REGISTER_FIELDS,
 } from '../../constants/auth/form';
+import { trpc } from '../../utils/trpc';
 
 type FieldValues = Record<
   keyof typeof LOGIN_DEFAULTS | keyof typeof REGISTER_DEFAULTS,
@@ -26,6 +27,7 @@ const AuthForm: FC = () => {
   } = useForm<FieldValues>({
     defaultValues: isRegistering ? REGISTER_DEFAULTS : LOGIN_DEFAULTS,
   });
+  const registerMutation = trpc.auth.register.useMutation();
 
   const callbackUrl = router.query.callbackUrl ?? '/';
 
@@ -37,10 +39,19 @@ const AuthForm: FC = () => {
     ? 'Already have an account?'
     : `Don't have an account?`;
 
-  const handleSubmitForm: Parameters<typeof handleSubmit>[0] = (
+  const handleSubmitForm: Parameters<typeof handleSubmit>[0] = async (
     values,
-  ): void => {
+  ): Promise<void> => {
     console.log(values);
+    if (registerMutation.isLoading) return;
+
+    try {
+      if (isRegistering) {
+        await registerMutation.mutateAsync(values);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -58,7 +69,12 @@ const AuthForm: FC = () => {
             ),
           )}
           <div className="form-control mt-6">
-            <button className="btn btn-primary" type="submit">
+            <button
+              className={`btn btn-primary${
+                registerMutation.isLoading ? ' loading' : ''
+              }`}
+              type="submit"
+            >
               {isRegistering ? 'Register' : 'Login'}
             </button>
           </div>

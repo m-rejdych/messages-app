@@ -18,7 +18,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         ref={ref}
         formNoValidate
         className={classNames(
-          `input input-bordered ${error && 'input-error'}`,
+          `input input-bordered${error ? ' input-error' : ''}`,
           className,
         )}
       />
