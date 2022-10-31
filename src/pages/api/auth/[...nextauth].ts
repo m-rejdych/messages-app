@@ -4,7 +4,7 @@ import { compare } from 'bcryptjs';
 
 import { prisma } from '../../../server/prisma';
 
-const opts: NextAuthOptions = {
+export const opts: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       credentials: {
@@ -25,7 +25,12 @@ const opts: NextAuthOptions = {
 
         if (!(await compare(password, user.password))) return null;
 
-        return { id: user.id.toString(), email, name: user.username };
+        return {
+          id: user.id.toString(),
+          email,
+          name: user.username,
+          image: null,
+        };
       },
     }),
   ],
@@ -38,6 +43,18 @@ const opts: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/login',
+  },
+  callbacks: {
+    jwt: ({ token, user }) => {
+      if (user?.id) token.id = parseInt(user.id, 10);
+      return token;
+    },
+    session: ({ token, session }) => {
+      return {
+        ...session,
+        user: { ...session.user, id: token.id, image: null },
+      };
+    },
   },
 };
 

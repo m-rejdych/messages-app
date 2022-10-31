@@ -11,4 +11,6 @@ const Login: NextPage = () => {
   );
 };
 
+export { getUnauthedServerSideProps as getServerSideProps } from '../../utils/session';
+
 export default Login;

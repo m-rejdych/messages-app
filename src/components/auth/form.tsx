@@ -1,5 +1,5 @@
 import { type FC, useState } from 'react';
-import type { TRPCError } from '@trpc/server';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
@@ -21,6 +21,7 @@ type FieldValues = Record<
 
 const AuthForm: FC = () => {
   const [showError, setShowError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
   const isRegistering = router.pathname.includes('/register');
@@ -33,7 +34,7 @@ const AuthForm: FC = () => {
   });
   const registerMutation = trpc.auth.register.useMutation();
 
-  const callbackUrl = router.query.callbackUrl ?? '/';
+  const callbackUrl = (router.query.callbackUrl as string) ?? '/home';
 
   const linkUrl = `/auth/${
     isRegistering ? 'login' : 'register'
@@ -46,15 +47,43 @@ const AuthForm: FC = () => {
   const handleSubmitForm: Parameters<typeof handleSubmit>[0] = async (
     values,
   ): Promise<void> => {
-    if (registerMutation.isLoading) return;
+    if (registerMutation.isLoading || loading) return;
+    setLoading(true);
 
     try {
       if (isRegistering) {
         await registerMutation.mutateAsync(values);
       }
-    } catch (error) {
-      setError((error as typeof registerMutation['error'])!.message);
+
+      const { email, password } = values;
+
+      const response = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (!response?.ok) {
+        setError(
+          response?.status === 401
+            ? 'Invalid email or password.'
+            : 'Oops... Something went wrong.',
+        );
+        setShowError(true);
+      } else {
+        await router.push(callbackUrl);
+      }
+
+      setLoading(false);
+    } catch (error: any) {
+      console.log('error', error.message);
+      setError(
+        isRegistering
+          ? (error as typeof registerMutation['error'])!.message
+          : 'Invalid email or password.',
+      );
       setShowError(true);
+      setLoading(false);
     }
   };
 
@@ -76,7 +105,7 @@ const AuthForm: FC = () => {
             <div className="form-control mt-6">
               <button
                 className={`btn btn-primary${
-                  registerMutation.isLoading ? ' loading' : ''
+                  registerMutation.isLoading || loading ? ' loading' : ''
                 }`}
                 type="submit"
               >
@@ -95,7 +124,7 @@ const AuthForm: FC = () => {
         </form>
       </div>
       <Fade
-        in={!!error && showError}
+        in={!!error && showError && !loading}
         className="alert alert-error shadow-lg fixed bottom-10 mx-auto w-auto"
       >
         <div>

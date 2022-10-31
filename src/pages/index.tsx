@@ -10,12 +10,14 @@ const Home: NextPage = () => (
           Create spaces, channels or send direct messages. Sign in and start
           chatting with your friends or co-workers.
         </p>
-        <Link href="/auth/login?callbackUrl=/" className="btn btn-primary">
+        <Link href="/auth/login" className="btn btn-primary">
           Get Started
         </Link>
       </div>
     </div>
   </div>
 );
+
+export { getUnauthedServerSideProps as getServerSideProps } from '../utils/session';
 
 export default Home;
