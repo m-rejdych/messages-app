@@ -53,7 +53,7 @@ export const getUnauthedServerSideProps: GetServerSideProps = async ({
   if (session) {
     return {
       redirect: {
-        destination: query.callbackUrl ?? '/home',
+        destination: query.callbackUrl ?? '/app',
       },
       props: { session },
     };

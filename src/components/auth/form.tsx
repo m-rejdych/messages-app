@@ -34,7 +34,7 @@ const AuthForm: FC = () => {
   });
   const registerMutation = trpc.auth.register.useMutation();
 
-  const callbackUrl = (router.query.callbackUrl as string) ?? '/home';
+  const callbackUrl = (router.query.callbackUrl as string) ?? '/app';
 
   const linkUrl = `/auth/${
     isRegistering ? 'login' : 'register'
