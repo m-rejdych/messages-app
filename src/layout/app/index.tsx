@@ -11,11 +11,11 @@ const AppLayout: FC<Props> = ({ children }) => {
   const { data } = useSession();
 
   return (
-    <div className="min-h-screen pt-16 bg-base-200">
+    <div className="h-screen pt-16 bg-base-200">
       {data && (
         <>
-          <NavBar />
           {children}
+          <NavBar />
         </>
       )}
     </div>
