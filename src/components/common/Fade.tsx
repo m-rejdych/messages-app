@@ -21,7 +21,13 @@ const Fade: FC<Props> = ({ children, in: inProp, ...rest }) => {
   const nodeRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <Transition nodeRef={nodeRef} in={inProp} timeout={DURATION}>
+    <Transition
+      nodeRef={nodeRef}
+      in={inProp}
+      timeout={DURATION}
+      mountOnEnter
+      unmountOnExit
+    >
       {(state) => (
         <div
           {...rest}

@@ -1,16 +1,50 @@
-import type { FC } from 'react';
-import { useSession } from 'next-auth/react';
+import { type FC, useState } from 'react';
+import { signOut } from 'next-auth/react';
+
+import Dropdown from '../../components/common/dropdown';
+import type { Item } from '../../types/common/dropdown';
+
+enum MenuItemValue {
+  Logout,
+}
+
+const MENU_ITEMS: Item<MenuItemValue>[] = [
+  {
+    label: 'Logout',
+    value: MenuItemValue.Logout,
+  },
+];
 
 const NavBar: FC = () => {
-  const { data: session } = useSession();
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  if (!session) return null;
+  const handleMenuItemClick = async (value: MenuItemValue): Promise<void> => {
+    try {
+      switch (value) {
+        case MenuItemValue.Logout:
+          await signOut();
+        default:
+          break;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="navbar container h-16 bg-base-100 fixed top-0 mx-auto">
       <div className="navbar-start">
-        <div className="dropdown">
-          <label tabIndex={0} className="btn btn-ghost btn-circle">
+        <Dropdown
+          open={menuOpen}
+          onItemClick={handleMenuItemClick}
+          items={MENU_ITEMS}
+        >
+          <label
+            tabIndex={0}
+            className="btn btn-ghost btn-circle"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            onBlur={() => setMenuOpen(false)}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"
@@ -26,24 +60,10 @@ const NavBar: FC = () => {
               />
             </svg>
           </label>
-          <ul
-            tabIndex={0}
-            className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
-          >
-            <li>
-              <a>Homepage</a>
-            </li>
-            <li>
-              <a>Portfolio</a>
-            </li>
-            <li>
-              <a>About</a>
-            </li>
-          </ul>
-        </div>
+        </Dropdown>
       </div>
       <div className="navbar-center">
-        <a className="btn btn-ghost normal-case text-xl">daisyUI</a>
+        <a className="btn btn-ghost normal-case text-xl">Messages App</a>
       </div>
       <div className="navbar-end">
         <button className="btn btn-ghost btn-circle">

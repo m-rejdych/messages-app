@@ -1,4 +1,5 @@
 import type { FC, ReactNode } from 'react';
+import { useSession } from 'next-auth/react';
 
 import NavBar from './navBar';
 
@@ -7,10 +8,16 @@ interface Props {
 }
 
 const AppLayout: FC<Props> = ({ children }) => {
+  const { data } = useSession();
+
   return (
     <div className="min-h-screen pt-16 bg-base-200">
-      <NavBar />
-      {children}
+      {data && (
+        <>
+          <NavBar />
+          {children}
+        </>
+      )}
     </div>
   );
 };

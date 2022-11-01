@@ -4,8 +4,8 @@ import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 
-import Input from '../common/Input';
-import Fade from '../common/Fade';
+import Input from '../common/input';
+import Fade from '../common/fade';
 import {
   LOGIN_FIELDS,
   LOGIN_DEFAULTS,
@@ -76,7 +76,6 @@ const AuthForm: FC = () => {
 
       setLoading(false);
     } catch (error: any) {
-      console.log('error', error.message);
       setError(
         isRegistering
           ? (error as typeof registerMutation['error'])!.message

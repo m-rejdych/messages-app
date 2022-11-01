@@ -9,7 +9,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className, helperText, ...rest }, ref) => (
     <div className="form-control">
       {label && (
-        <label className="label" htmlFor={rest.name ?? undefined}>
+        <label className="label">
           <span className="label-text">{label}</span>
         </label>
       )}
