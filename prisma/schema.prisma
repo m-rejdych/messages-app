@@ -16,7 +16,7 @@ model User {
   password String
   username String
   spaces Space[]
-  members Member[]
+  memberships Membership[]
 }
 
 model Space {
@@ -26,10 +26,10 @@ model Space {
   updatedAt DateTime @default(now()) @updatedAt
   creatorId Int
   creator User @relation(fields: [creatorId], references: [id], onDelete: SetNull)
-  members Member[]
+  members Membership[]
 }
 
-model Member {
+model Membership {
   id Int @id @default(autoincrement())
   createdAt DateTime @default(now())
   spaceId Int
@@ -42,6 +42,12 @@ model Member {
 
 model Role {
   id Int @id @default(autoincrement())
-  name String
-  members Member[]
+  type RoleType @unique
+  members Membership[]
+}
+
+enum RoleType {
+  Chatter
+  Moderator
+  Admin
 }

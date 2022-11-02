@@ -5,7 +5,7 @@ import { hash } from 'bcryptjs';
 import { router, procedure } from '../trpc';
 import { PASSWORD_REGEXP } from '../../constants/auth/form';
 
-const authRouter = router({
+export default router({
   register: procedure
     .input(
       z.object({
@@ -42,5 +42,3 @@ const authRouter = router({
       },
     ),
 });
-
-export default authRouter;
