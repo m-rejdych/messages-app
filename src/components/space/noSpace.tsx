@@ -1,5 +1,7 @@
 import type { FC, HTMLProps } from 'react';
 
+import CreateSpaceButton from './createButton';
+
 const NoSpace: FC<HTMLProps<HTMLDivElement>> = ({ className, ...props }) => (
   <div
     {...props}
@@ -13,7 +15,7 @@ const NoSpace: FC<HTMLProps<HTMLDivElement>> = ({ className, ...props }) => (
     <div className="flex flex-col w-full lg:flex-row">
       <div className="grid flex-grow h-32 card bg-base-300 rounded-box place-items-center">
         <p className="text-lg">Create new</p>
-        <button className="btn btn-primary">Create space</button>
+        <CreateSpaceButton />
       </div>
       <div className="divider lg:divider-horizontal">OR</div>
       <div className="grid flex-grow h-32 card bg-base-300 rounded-box place-items-center">

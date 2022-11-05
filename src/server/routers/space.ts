@@ -25,10 +25,6 @@ export default router({
         });
       }
 
-      const space = await prisma.space.create({
-        data: { name, creatorId: userId },
-      });
-
       const role = await prisma.role.findUnique({
         where: { type: RoleType.Admin },
         include: { members: true },
@@ -39,6 +35,10 @@ export default router({
           message: 'Admin role not found.',
         });
       }
+
+      const space = await prisma.space.create({
+        data: { name, creatorId: userId },
+      });
 
       await prisma.membership.create({
         data: { roleId: role.id, spaceId: space.id, userId: userId },

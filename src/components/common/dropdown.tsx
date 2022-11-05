@@ -18,7 +18,7 @@ const Dropdown = <T extends unknown>({
 }: Props<T>) => (
   <div className="dropdown dropdown-open">
     {children}
-    <Fade in={open}>
+    <Fade scale in={open}>
       <ul
         tabIndex={0}
         className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"

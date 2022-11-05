@@ -1,12 +1,4 @@
-import type { RegisterOptions } from 'react-hook-form';
-
-import type { InputProps } from '../../types/common/input';
-
-interface Field<T extends string> {
-  name: T;
-  registerOptions?: RegisterOptions;
-  inputProps?: InputProps;
-}
+import type { Field } from '../../types/form';
 
 const EMAIL_REGEXP =
   /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;

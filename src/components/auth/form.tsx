@@ -124,6 +124,7 @@ const AuthForm: FC = () => {
       </div>
       <Fade
         in={!!error && showError && !loading}
+        scale
         className="alert alert-error shadow-lg fixed bottom-10 mx-auto w-auto"
       >
         <div>
