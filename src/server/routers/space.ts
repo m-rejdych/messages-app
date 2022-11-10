@@ -46,4 +46,13 @@ export default router({
 
       return space;
     }),
+  list: protectedProcedure.query(async ({ ctx: { prisma, userId } }) => {
+    const spaces = await prisma.space.findMany({
+      where: { creatorId: userId },
+      include: { creator: { select: { id: true, username: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return spaces;
+  }),
 });

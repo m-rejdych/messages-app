@@ -1,18 +1,36 @@
-import { type FC, useState } from 'react';
+import { type FC, type HTMLProps, useState } from 'react';
 
 import Modal from '../common/modal/modal';
 import CreateSpaceForm from './createForm';
 
-const CreateSpaceButton: FC = () => {
+interface Props extends Omit<HTMLProps<HTMLButtonElement>, 'type' | 'onClick'> {
+  onCreate?: () => void;
+}
+
+const CreateSpaceButton: FC<Props> = ({
+  className,
+  children,
+  onCreate,
+  ...props
+}) => {
   const [open, setOpen] = useState(false);
+
+  const handleSubmit = (): void => {
+    onCreate?.();
+    setOpen(false);
+  };
 
   return (
     <>
-      <button className="btn btn-primary" onClick={() => setOpen(true)}>
-        Create space
+      <button
+        {...props}
+        className={`btn btn-primary${(className = ` ${className} : ''`)}`}
+        onClick={() => setOpen(true)}
+      >
+        {children ?? 'Create space'}
       </button>
-      <Modal open={open} title="Create space">
-        <CreateSpaceForm onSubmit={() => setOpen(false)} withModalActions />
+      <Modal open={open} onClose={() => setOpen(false)} title="Create space">
+        <CreateSpaceForm onSubmit={handleSubmit} withModalActions />
       </Modal>
     </>
   );
