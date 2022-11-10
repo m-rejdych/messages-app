@@ -3,11 +3,14 @@ import { useForm } from 'react-hook-form';
 
 import ModalActions from '../common/modal/modalActions';
 import Input from '../common/input';
+import Checkbox from '../common/checkbox';
 import useAuthError from '../../hooks/useAuthError';
 import { trpc } from '../../utils/trpc';
 import { DEFAULTS, FIELDS } from '../../constants/space/form';
 
-type FieldValues = Record<keyof typeof DEFAULTS, string>;
+type FieldValues = {
+  [P in keyof typeof DEFAULTS]: typeof DEFAULTS[P];
+}
 
 interface Props {
   withModalActions?: boolean;
@@ -41,14 +44,26 @@ const CreateSpaceForm: FC<Props> = ({ onSubmit, withModalActions }) => {
 
   return (
     <form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
-      {FIELDS.map(({ name, inputProps, registerOptions }) => (
-        <Input
-          key={name}
-          error={formState.errors.name?.message}
-          {...inputProps}
-          {...register(name, registerOptions)}
-        />
-      ))}
+      {FIELDS.map(({ name, inputProps, registerOptions }) =>
+        typeof DEFAULTS[name] === 'string' ? (
+          <Input
+            key={name}
+            error={formState.errors.name?.message}
+            {...inputProps}
+            {...register(name, registerOptions)}
+          />
+        ) : (
+          <Checkbox
+            key={name}
+            className="checkbox-secondary"
+            formControlProps={{
+              className: 'mt-2',
+            }}
+            {...inputProps}
+            {...register(name, registerOptions)}
+          />
+        ),
+      )}
       {withModalActions ? (
         <ModalActions>{submitButton}</ModalActions>
       ) : (

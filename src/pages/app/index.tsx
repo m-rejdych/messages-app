@@ -5,6 +5,7 @@ import { trpc } from '../../utils/trpc';
 
 import NoSpace from '../../components/space/noSpace';
 import CreateSpaceButton from '../../components/space/createButton';
+import SpacesList from '../../components/space/list';
 import useAuthError from '../../hooks/useAuthError';
 
 const App: NextPageWithLayout = () => {
@@ -35,29 +36,7 @@ const App: NextPageWithLayout = () => {
         </div>
       </div>
       <div className="divider" />
-      <div className="flex-1 overflow-auto">
-        {data.map(({ id, name, creator: { username } }) => (
-          <div
-            key={id}
-            className="card w-full bg-base-100 shadow-xl [&:not(:last-child)]:mb-4"
-          >
-            <div className="card-body">
-              <h2 className="card-title">{name}</h2>
-              <p className="text-secondary text-md">
-                Created by <span className="font-bold">{username}</span>
-              </p>
-              <div className="card-actions justify-end">
-                <Link
-                  href={`/app/space/${id}`}
-                  className="btn btn-primary btn-outline"
-                >
-                  Go!
-                </Link>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <SpacesList spaces={data} className="flex-1 overflow-auto" />
     </div>
   );
 };

@@ -12,9 +12,10 @@ export default router({
           .string()
           .trim()
           .min(2, 'Space name needs to be at least 2 characters long.'),
+        isPrivate: z.boolean().optional(),
       }),
     )
-    .mutation(async ({ ctx: { prisma, userId }, input: { name } }) => {
+    .mutation(async ({ ctx: { prisma, userId }, input: { name, ...rest } }) => {
       const matchedSpace = await prisma.space.findFirst({
         where: { creatorId: userId, name },
       });
@@ -37,7 +38,7 @@ export default router({
       }
 
       const space = await prisma.space.create({
-        data: { name, creatorId: userId },
+        data: { name, creatorId: userId, ...rest },
       });
 
       await prisma.membership.create({

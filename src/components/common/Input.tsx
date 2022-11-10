@@ -6,8 +6,12 @@ import type { InputProps } from '../../types/common/input';
 
 // eslint-disable-next-line react/display-name
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, className, helperText, ...rest }, ref) => (
-    <div className="form-control">
+  ({ label, error, className, helperText, formControlProps, ...rest }, ref) => (
+    <div
+      className={`form-control${
+        formControlProps?.className ? ` ${formControlProps?.className}` : ''
+      }`}
+    >
       {label && (
         <label className="label">
           <span className="label-text">{label}</span>

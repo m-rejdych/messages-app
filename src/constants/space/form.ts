@@ -2,6 +2,7 @@ import type { Field } from '../../types/form';
 
 export const DEFAULTS = {
   name: '',
+  isPrivate: false,
 };
 
 export const FIELDS: Field<keyof typeof DEFAULTS>[] = [
@@ -20,6 +21,12 @@ export const FIELDS: Field<keyof typeof DEFAULTS>[] = [
         value: 2,
         message: 'Space name needs to be at least 2 characters long.',
       },
+    },
+  },
+  {
+    name: 'isPrivate',
+    inputProps: {
+      label: 'Private',
     },
   },
 ];
