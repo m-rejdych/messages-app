@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import { useForm } from 'react-hook-form';
 
-import ModalActions from '../common/modal/modalActions';
 import Input from '../common/input';
 import Checkbox from '../common/checkbox';
 import useAuthError from '../../hooks/useAuthError';
@@ -65,7 +64,7 @@ const CreateSpaceForm: FC<Props> = ({ onSubmit, withModalActions }) => {
         ),
       )}
       {withModalActions ? (
-        <ModalActions>{submitButton}</ModalActions>
+        <div className="modal-action">{submitButton}</div>
       ) : (
         submitButton
       )}

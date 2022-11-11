@@ -1,10 +1,10 @@
 import AppLayout from '../../layout/app';
-import Link from 'next/link';
 import type { NextPageWithLayout } from '../../types/page';
 import { trpc } from '../../utils/trpc';
 
 import NoSpace from '../../components/space/noSpace';
 import CreateSpaceButton from '../../components/space/createButton';
+import JoinSpaceButton from '../../components/space/joinButton';
 import SpacesList from '../../components/space/list';
 import useAuthError from '../../hooks/useAuthError';
 
@@ -17,7 +17,7 @@ const App: NextPageWithLayout = () => {
     utils.space.list.invalidate();
   };
 
-  if (!data && !isLoading) {
+  if (!data?.length && !isLoading) {
     return <NoSpace onCreate={invalidateListSpaces} className="h-full" />;
   }
 
@@ -32,11 +32,15 @@ const App: NextPageWithLayout = () => {
             onCreate={invalidateListSpaces}
             className="btn-sm mb-2 sm:mb-0 sm:mr-2"
           />
-          <button className="btn btn-secondary btn-sm">Join space</button>
+          <JoinSpaceButton className="btn-sm" />
         </div>
       </div>
       <div className="divider" />
-      <SpacesList spaces={data} className="flex-1 overflow-auto" />
+      <SpacesList
+        action={{ text: 'Go!', navigate: true }}
+        spaces={data}
+        className="flex-1 overflow-auto"
+      />
     </div>
   );
 };

@@ -28,7 +28,6 @@ export default router({
 
       const role = await prisma.role.findUnique({
         where: { type: RoleType.Admin },
-        include: { members: true },
       });
       if (!role) {
         throw new TRPCError({
@@ -49,11 +48,81 @@ export default router({
     }),
   list: protectedProcedure.query(async ({ ctx: { prisma, userId } }) => {
     const spaces = await prisma.space.findMany({
-      where: { creatorId: userId },
-      include: { creator: { select: { id: true, username: true } } },
+      where: { OR: [{ creatorId: userId }, { members: { some: { userId } } }] },
+      include: {
+        creator: { select: { id: true, username: true } },
+        members: { select: { userId: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
 
     return spaces;
   }),
+  searchPublicByName: protectedProcedure
+    .input(z.string().trim().min(1, 'Space name can not be empty.'))
+    .query(async ({ ctx: { prisma }, input }) => {
+      const spaces = await prisma.space.findMany({
+        where: {
+          name: { mode: 'insensitive', contains: input },
+          isPrivate: false,
+        },
+        include: {
+          creator: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      return spaces;
+    }),
+  join: protectedProcedure
+    .input(z.number())
+    .mutation(async ({ ctx: { userId, prisma }, input }) => {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'User not found.' });
+      }
+
+      const space = await prisma.space.findUnique({
+        where: { id: input },
+        include: { members: { select: { userId: true } } },
+      });
+      if (!space) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Space not found.' });
+      }
+      if (space.isPrivate) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'This space is private.',
+        });
+      }
+      if (space.members.some(({ userId: memberId }) => userId === memberId)) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'You are already a member of this space.',
+        });
+      }
+
+      const role = await prisma.role.findUnique({
+        where: { type: RoleType.Chatter },
+      });
+      if (!role) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Role not found.',
+        });
+      }
+
+      await prisma.membership.create({
+        data: { roleId: role.id, spaceId: space.id, userId },
+      });
+
+      return space;
+    }),
 });

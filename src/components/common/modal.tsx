@@ -1,20 +1,44 @@
-import type { FC, ReactNode } from 'react';
+import type { FC, ReactNode, HTMLProps } from 'react';
 import { createPortal } from 'react-dom';
 
-import Fade from '../fade';
+import Fade from './fade';
 
-interface Props {
+type DivProps = HTMLProps<HTMLDivElement>;
+
+interface Props extends DivProps {
   open: boolean;
   title?: string;
   children?: ReactNode;
   onClose?: () => void;
+  boxProps?: DivProps;
 }
 
-const Modal: FC<Props> = ({ open, title, onClose, children }) =>
+const Modal: FC<Props> = ({
+  open,
+  title,
+  onClose,
+  children,
+  className,
+  boxProps,
+  ...rest
+}) =>
   typeof document !== 'undefined'
     ? createPortal(
-        <Fade in={open} className={`modal${open ? ' modal-open' : ''}`}>
-          <Fade scale in={open} className="modal-box">
+        <Fade
+          {...rest}
+          in={open}
+          className={`modal${open ? ' modal-open' : ''}${
+            className ? ` ${className}` : ''
+          }`}
+        >
+          <Fade
+            {...boxProps}
+            scale
+            in={open}
+            className={`modal-box${
+              boxProps?.className ? ` ${boxProps.className}` : ''
+            }`}
+          >
             {title && <h3 className="fong-bold text-lg">{title}</h3>}
             {onClose && (
               <button
@@ -37,6 +61,7 @@ const Modal: FC<Props> = ({ open, title, onClose, children }) =>
                 </svg>
               </button>
             )}
+            <div className="divider" />
             {children}
           </Fade>
         </Fade>,

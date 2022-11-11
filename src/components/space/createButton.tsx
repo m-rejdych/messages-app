@@ -1,7 +1,6 @@
 import { type FC, type HTMLProps, useState } from 'react';
 
-import Modal from '../common/modal/modal';
-import CreateSpaceForm from './createForm';
+import CreateSpaceModal from './createModal';
 
 interface Props extends Omit<HTMLProps<HTMLButtonElement>, 'type' | 'onClick'> {
   onCreate?: () => void;
@@ -15,8 +14,7 @@ const CreateSpaceButton: FC<Props> = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  const handleSubmit = (): void => {
-    onCreate?.();
+  const handleClose = (): void => {
     setOpen(false);
   };
 
@@ -29,9 +27,11 @@ const CreateSpaceButton: FC<Props> = ({
       >
         {children ?? 'Create space'}
       </button>
-      <Modal open={open} onClose={() => setOpen(false)} title="Create space">
-        <CreateSpaceForm onSubmit={handleSubmit} withModalActions />
-      </Modal>
+      <CreateSpaceModal
+        open={open}
+        onClose={handleClose}
+        onCreate={handleClose}
+      />
     </>
   );
 };

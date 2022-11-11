@@ -1,6 +1,7 @@
 import type { FC, HTMLProps } from 'react';
 
 import CreateSpaceButton from './createButton';
+import JoinSpaceButton from './joinButton';
 
 interface Props extends HTMLProps<HTMLDivElement> {
   onCreate?: () => void;
@@ -24,7 +25,7 @@ const NoSpace: FC<Props> = ({ className, onCreate, ...props }) => (
       <div className="divider lg:divider-horizontal">OR</div>
       <div className="grid flex-grow h-32 card bg-base-300 rounded-box place-items-center">
         <p className="text-lg">Join existing one</p>
-        <button className="btn btn-secondary">Join space</button>
+        <JoinSpaceButton />
       </div>
     </div>
   </div>
