@@ -30,7 +30,7 @@ const CreateSpaceButton: FC<Props> = ({
       <CreateSpaceModal
         open={open}
         onClose={handleClose}
-        onCreate={handleClose}
+        onCreate={onCreate}
       />
     </>
   );

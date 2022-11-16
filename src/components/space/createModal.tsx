@@ -1,4 +1,4 @@
-import { type FC, useState } from 'react';
+import { type FC } from 'react';
 
 import Modal from '../common/modal';
 import CreateSpaceForm from './createForm';
