@@ -1,16 +1,19 @@
 import { type FC, type HTMLProps, useRef } from 'react';
 import { Transition, TransitionStatus } from 'react-transition-group';
 
-interface Props extends HTMLProps<HTMLDivElement> {
-  in: boolean;
-  children: React.ReactNode;
-  scale?: boolean;
+export interface TransitionProps {
   onEnter?: (isAppearing: boolean) => void;
   onExit?: () => void;
   onEntering?: (isAppearing: boolean) => void;
   onExiting?: () => void;
   onEntered?: (isAppearing: boolean) => void;
   onExited?: () => void;
+}
+
+interface Props extends HTMLProps<HTMLDivElement>, TransitionProps {
+  in: boolean;
+  children: React.ReactNode;
+  scale?: boolean;
 }
 
 const DURATION = 200;

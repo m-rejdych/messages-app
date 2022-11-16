@@ -1,11 +1,11 @@
 import type { FC, ReactNode, HTMLProps } from 'react';
 import { createPortal } from 'react-dom';
 
-import Fade from './fade';
+import Fade, { type TransitionProps } from './fade';
 
 type DivProps = HTMLProps<HTMLDivElement>;
 
-interface Props extends DivProps {
+interface Props extends DivProps, TransitionProps {
   open: boolean;
   title?: string;
   children?: ReactNode;

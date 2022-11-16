@@ -2,27 +2,38 @@ import type { FC, HTMLProps } from 'react';
 import Link from 'next/link';
 import { Prisma } from '@prisma/client';
 
-type Space = Prisma.SpaceGetPayload<{
+export type Space = Prisma.SpaceGetPayload<{
   include: {
     creator: { select: { username: true; id: true } };
+    members: { select: { userId: true } };
   };
 }>;
 
-interface Action {
+export interface Action {
   text: string;
   navigate?: boolean;
   onAction?: (id: number) => void | Promise<void>;
   loading?: boolean;
+  inactive?: boolean;
 }
 
 interface Props extends Omit<HTMLProps<HTMLUListElement>, 'action'> {
   spaces: Space[];
-  action?: Action;
+  action?: Action | ((space: Space) => Action | undefined);
 }
 
-const SpacesList: FC<Props> = ({ spaces, action, ...rest }) => (
-  <ul {...rest}>
-    {spaces.map(({ id, name, creator: { username } }) => (
+const SpacesList: FC<Props> = ({ spaces, action, ...rest }) => {
+  const renderSpace = (space: Space): React.ReactElement => {
+    const resolvedAction =
+      typeof action === 'function' ? action(space) : action;
+
+    const {
+      id,
+      name,
+      creator: { username },
+    } = space;
+
+    return (
       <li
         key={id}
         className="card card-compact list-item w-full bg-base-100 shadow-xl [&:not(:last-child)]:mb-4"
@@ -32,31 +43,34 @@ const SpacesList: FC<Props> = ({ spaces, action, ...rest }) => (
           <p className="text-secondary text-md">
             Created by <span className="font-bold">{username}</span>
           </p>
-          {action && (
+          {resolvedAction && (
             <div className="card-actions justify-end">
-              {action.navigate ? (
+              {resolvedAction.inactive ? (
+                <h3 className="text-accent text-lg font-semibold">{resolvedAction.text}</h3>
+              ) : resolvedAction.navigate ? (
                 <Link
                   href={`/app/space/${id}`}
                   className="btn btn-primary btn-outline"
                 >
-                  {action.text}
+                  {resolvedAction.text}
                 </Link>
               ) : (
                 <button
                   className={`btn btn-primary btn-outline${
-                    action.loading ? ' loading' : ''
+                    resolvedAction.loading ? ' loading' : ''
                   }`}
-                  onClick={() => action.onAction?.(id)}
+                  onClick={() => resolvedAction.onAction?.(id)}
                 >
-                  {action.text}
+                  {resolvedAction.text}
                 </button>
               )}
             </div>
           )}
         </div>
       </li>
-    ))}
-  </ul>
-);
+    );
+  };
 
+  return <ul {...rest}>{spaces.map(renderSpace)}</ul>;
+};
 export default SpacesList;

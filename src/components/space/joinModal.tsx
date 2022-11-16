@@ -1,9 +1,10 @@
 import { type FC, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
 
 import Modal from '../common/modal';
 import Input from '../common/input';
-import SpacesList from './list';
+import SpacesList, { type Space, type Action } from './list';
 import useDebounce from '../../hooks/useDebounce';
 import useAuthError from '../../hooks/useAuthError';
 import { trpc } from '../../utils/trpc';
@@ -15,7 +16,8 @@ interface Props {
 
 const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
   const [value, setValue] = useState('');
-  const debouncedValue = useDebounce(value, 1000);
+  const [debouncedValue, setDebouncedValue] = useDebounce(value, 1000);
+  const { data: session } = useSession();
   const { data, isFetched, isRefetching } =
     trpc.space.searchPublicByName.useQuery(debouncedValue, {
       enabled: !!debouncedValue,
@@ -38,10 +40,33 @@ const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
     }
   };
 
+  const getAction = ({ members }: Space): Action | undefined => {
+    if (!session?.user) return undefined;
+
+    if (members.some(({ userId }) => userId === session.user.id)) {
+      return {
+        text: 'You are a member',
+        inactive: true,
+      };
+    }
+
+    return {
+      text: 'Join!',
+      onAction: handleJoin,
+      loading: joinMutation.isLoading,
+    };
+  };
+
+  const handleExited = (): void => {
+    setValue('');
+    setDebouncedValue('');
+  };
+
   return (
     <Modal
       open={open}
       onClose={onClose}
+      onExited={handleExited}
       title="Join space"
       boxProps={{ className: 'overflow-hidden flex flex-col' }}
     >
@@ -50,11 +75,7 @@ const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
       <h2 className="text-md font-bold">Spaces</h2>
       {data && debouncedValue && data.length ? (
         <SpacesList
-          action={{
-            text: 'Join!',
-            onAction: handleJoin,
-            loading: joinMutation.isLoading,
-          }}
+          action={getAction}
           spaces={data}
           className="overflow-auto"
         />

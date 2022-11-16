@@ -73,6 +73,11 @@ export default router({
               username: true,
             },
           },
+          members: {
+            select: {
+              userId: true,
+            },
+          },
         },
         orderBy: {
           createdAt: 'desc',
