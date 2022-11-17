@@ -58,6 +58,32 @@ export default router({
 
     return spaces;
   }),
+  getById: protectedProcedure
+    .input(z.number())
+    .query(async ({ ctx: { userId, prisma }, input }) => {
+      const space = await prisma.space.findUnique({
+        where: { id: input },
+        include: {
+          members: {
+            select: {
+              role: true,
+              user: { select: { username: true, id: true } },
+            },
+          },
+        },
+      });
+      if (!space) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Space not found.' });
+      }
+      if (!space.members.some(({ user: { id } }) => id === userId)) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'You are not a member of this space.',
+        });
+      }
+
+      return space;
+    }),
   searchPublicByName: protectedProcedure
     .input(z.string().trim().min(1, 'Space name can not be empty.'))
     .query(async ({ ctx: { prisma }, input }) => {
