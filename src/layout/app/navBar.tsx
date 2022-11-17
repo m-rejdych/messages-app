@@ -1,4 +1,5 @@
 import { type FC, useState } from 'react';
+import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 
 import Dropdown from '../../components/common/dropdown';
@@ -32,7 +33,7 @@ const NavBar: FC = () => {
   };
 
   return (
-    <div className="navbar container h-16 bg-base-100 fixed top-0 mx-auto">
+    <div className="navbar h-16 bg-base-100 fixed top-0 left-0 right-0 shadow-lg">
       <div className="navbar-start">
         <Dropdown
           open={menuOpen}
@@ -63,7 +64,9 @@ const NavBar: FC = () => {
         </Dropdown>
       </div>
       <div className="navbar-center">
-        <a className="btn btn-ghost normal-case text-xl">Messages App</a>
+        <Link href="/app" className="btn btn-ghost normal-case text-xl">
+          Messages App
+        </Link>
       </div>
       <div className="navbar-end">
         <button className="btn btn-ghost btn-circle">
