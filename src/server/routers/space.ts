@@ -66,6 +66,7 @@ export default router({
         include: {
           members: {
             select: {
+              id: true,
               role: true,
               user: { select: { username: true, id: true } },
             },

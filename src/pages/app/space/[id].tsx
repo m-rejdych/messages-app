@@ -1,10 +1,14 @@
 import { useRouter } from 'next/router';
 import HashLoader from 'react-spinners/HashLoader';
+import { inferProcedureOutput } from '@trpc/server';
 
 import type { NextPageWithLayout } from '../../../types/page';
 import AppLayout from '../../../layout/app';
+import Sidebar from '../../../components/space/sidebar';
 import useAuthError from '../../../hooks/useAuthError';
 import { trpc } from '../../../utils/trpc';
+
+type Space = inferProcedureOutput<''>;
 
 const Space: NextPageWithLayout = () => {
   const onError = useAuthError();
@@ -36,7 +40,12 @@ const Space: NextPageWithLayout = () => {
 
   if (!data) return null;
 
-  return <h1>{data.members.map(({ user: { username } }) => username)}</h1>;
+  return (
+    <div className="flex items-start h-full py-8">
+      <Sidebar name={data.name} members={data.members} />
+      <div className="flex-1 h-full" />
+    </div>
+  );
 };
 
 Space.getLayout = (page) => <AppLayout>{page}</AppLayout>;
