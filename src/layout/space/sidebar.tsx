@@ -6,7 +6,7 @@ type Space = RouterOutputs['space']['getById'];
 
 const Sidebar: FC<Pick<Space, 'name' | 'members'>> = ({ name, members }) => {
   return (
-    <div className="w-1/3 pr-4">
+    <div className="w-1/3 md:w-1/4 pr-4">
       <h3 className="text-xl mb-4 font-bold">{name}</h3>
       <div className="divider" />
       <h4 className="text-lg font-bold mb-4">Channels</h4>
