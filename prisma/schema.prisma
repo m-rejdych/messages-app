@@ -37,6 +37,7 @@ model Membership {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   role Role @relation(fields: [roleId], references: [id], onDelete: SetNull)
   messages Message[]
+  chats ChatsOnMemberships[]
 }
 
 model Role {
@@ -50,6 +51,7 @@ model Chat {
   name String?
   type ChatType
   messages Message[]
+  members ChatsOnMemberships[]
 }
 
 model Message {
@@ -59,6 +61,15 @@ model Message {
   chatId Int
   author Membership @relation(fields: [authorId], references: [id], onDelete: SetNull)
   chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+}
+
+model ChatsOnMemberships {
+  chatId Int
+  memberId Int
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  member Membership @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@id([chatId, memberId])
 }
 
 enum RoleType {
