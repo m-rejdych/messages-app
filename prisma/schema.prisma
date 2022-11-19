@@ -36,6 +36,7 @@ model Membership {
   space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   role Role @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  messages Message[]
 }
 
 model Role {
@@ -44,8 +45,29 @@ model Role {
   members Membership[]
 }
 
+model Chat {
+  id Int @id @default(autoincrement())
+  name String?
+  type ChatType
+  messages Message[]
+}
+
+model Message {
+  id Int @id @default(autoincrement())
+  content String
+  authorId Int
+  chatId Int
+  author Membership @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+}
+
 enum RoleType {
   Chatter
   Moderator
   Admin
+}
+
+enum ChatType {
+  Members
+  Channel
 }
