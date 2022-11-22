@@ -15,7 +15,7 @@ const SpaceLayout: FC<Props> = ({ children }) => {
   const { query } = useRouter();
   const { data, isInitialLoading, error } = trpc.space.getById.useQuery(
     { spaceId: parseInt(query.id as string, 10) },
-    { onError },
+    { onError, retry: false, refetchOnWindowFocus: false },
   );
 
   if (isInitialLoading) {

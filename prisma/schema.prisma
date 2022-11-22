@@ -50,11 +50,18 @@ model Role {
 model Chat {
   id Int @id @default(autoincrement())
   name String?
-  type ChatType
   messages Message[]
   members ChatsOnMemberships[]
   spaceId Int
+  chatTypeId Int
   space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  type ChatType @relation(fields: [chatTypeId], references: [id], onDelete: SetNull)
+}
+
+model ChatType {
+  id Int @id @default(autoincrement())
+  name ChatTypeName @unique
+  chats Chat[]
 }
 
 model Message {
@@ -81,7 +88,7 @@ enum RoleType {
   Admin
 }
 
-enum ChatType {
-  Members
+enum ChatTypeName {
+  DirectMessage
   Channel
 }

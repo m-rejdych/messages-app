@@ -74,9 +74,6 @@ export default router({
           },
         },
       });
-      if (!space) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Space not found.' });
-      }
 
       return space;
     }),

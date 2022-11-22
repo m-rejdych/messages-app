@@ -10,7 +10,7 @@ const Sidebar: FC<Pick<Space, 'name' | 'members'>> = ({ name, members }) => {
       <h3 className="text-xl mb-4 font-bold">{name}</h3>
       <div className="divider" />
       <h4 className="text-lg font-bold mb-4">Channels</h4>
-      <h4 className="text-lg font-bold mb-4">Members</h4>
+      <h4 className="text-lg font-bold mb-4">Direct messages</h4>
       <ul className="mb-4 ml-2">
         {members.map(({ id, user: { username } }) => (
           <li key={id} className="[&:not(:last-child)]:mb-2">
