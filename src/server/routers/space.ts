@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import { RoleType } from '@prisma/client';
 
-import { router, protectedProcedure } from '../trpc';
+import { router, protectedProcedure, membershipMiddleware } from '../trpc';
 
 export default router({
   create: protectedProcedure
@@ -59,10 +59,11 @@ export default router({
     return spaces;
   }),
   getById: protectedProcedure
-    .input(z.number())
-    .query(async ({ ctx: { userId, prisma }, input }) => {
+    .input(z.object({ spaceId: z.number() }))
+    .use(membershipMiddleware)
+    .query(async ({ ctx: { prisma }, input: { spaceId } }) => {
       const space = await prisma.space.findUnique({
-        where: { id: input },
+        where: { id: spaceId },
         include: {
           members: {
             select: {
@@ -75,12 +76,6 @@ export default router({
       });
       if (!space) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Space not found.' });
-      }
-      if (!space.members.some(({ user: { id } }) => id === userId)) {
-        throw new TRPCError({
-          code: 'FORBIDDEN',
-          message: 'You are not a member of this space.',
-        });
       }
 
       return space;

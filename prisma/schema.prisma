@@ -25,6 +25,7 @@ model Space {
   creatorId Int
   creator User @relation(fields: [creatorId], references: [id], onDelete: SetNull)
   members Membership[]
+  chats Chat[]
 }
 
 model Membership {
@@ -52,6 +53,8 @@ model Chat {
   type ChatType
   messages Message[]
   members ChatsOnMemberships[]
+  spaceId Int
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
 }
 
 model Message {
