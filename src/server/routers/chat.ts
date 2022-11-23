@@ -5,26 +5,37 @@ import { ChatTypeName } from '@prisma/client';
 import { router, protectedProcedure, membershipMiddleware } from '../trpc';
 
 export default router({
-  getDirectMessage: protectedProcedure
-    .input(z.object({ spaceId: z.number(), memberId: z.number() }))
+  getDmById: protectedProcedure
+    .input(z.object({ spaceId: z.number(), chatId: z.number() }))
     .use(membershipMiddleware)
-    .query(
-      async ({ ctx: { prisma, membership }, input: { spaceId, memberId } }) => {
-        const chat = await prisma.chat.findFirst({
-          where: {
-            spaceId,
-            type: { name: ChatTypeName.DirectMessage },
-            AND: [
-              { members: { some: { memberId: membership.id } } },
-              { members: { some: { memberId } } },
-            ],
+    .query(async ({ ctx: { prisma }, input: { spaceId, chatId } }) => {
+      const chat = await prisma.chat.findUnique({
+        where: { id: chatId },
+        include: {
+          messages: {
+            select: {
+              id: true,
+              content: true,
+              author: {
+                select: { id: true, user: { select: { username: true } } },
+              },
+            },
           },
+        },
+      });
+      if (!chat) {
+        throw new TRPCError({ code: 'NOT_FOUND', message: 'Chat not found.' });
+      }
+      if (chat.spaceId !== spaceId) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'This chat is not a part of the space.',
         });
+      }
 
-        return chat;
-      },
-    ),
-  createDirectMessage: protectedProcedure
+      return chat;
+    }),
+  getOrCreateDmByMemberId: protectedProcedure
     .input(z.object({ spaceId: z.number(), memberId: z.number() }))
     .use(membershipMiddleware)
     .mutation(
@@ -39,12 +50,8 @@ export default router({
             ],
           },
         });
-        if (matchedChat) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'Chat with this member already exists.',
-          });
-        }
+
+        if (matchedChat) return matchedChat;
 
         const otherMembership = await prisma.membership.findUnique({
           where: { id: memberId },

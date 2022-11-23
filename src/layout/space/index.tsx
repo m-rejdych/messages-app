@@ -11,10 +11,11 @@ interface Props {
 }
 
 const SpaceLayout: FC<Props> = ({ children }) => {
-  const onError = useAuthError();
   const { query } = useRouter();
+  const onError = useAuthError();
+  const spaceId = parseInt(query.spaceId as string, 10);
   const { data, isInitialLoading, error } = trpc.space.getById.useQuery(
-    { spaceId: parseInt(query.id as string, 10) },
+    { spaceId },
     { onError, retry: false, refetchOnWindowFocus: false },
   );
 
@@ -42,7 +43,7 @@ const SpaceLayout: FC<Props> = ({ children }) => {
 
   return (
     <div className="flex items-start h-full py-8">
-      <Sidebar name={data.name} members={data.members} />
+      <Sidebar id={spaceId} name={data.name} members={data.members} />
       <div className="flex-1 h-full">{children}</div>
     </div>
   );
