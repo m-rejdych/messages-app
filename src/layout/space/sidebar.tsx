@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { type FC, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 
@@ -12,6 +12,7 @@ const Sidebar: FC<Pick<Space, 'name' | 'members' | 'id'>> = ({
   name,
   members,
 }) => {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
   const { data: session } = useSession();
   const router = useRouter();
   const getOrCreateDmMutation = trpc.chat.getOrCreateDmByMemberId.useMutation();
@@ -26,6 +27,8 @@ const Sidebar: FC<Pick<Space, 'name' | 'members' | 'id'>> = ({
         memberId,
       });
       await router.push(`/app/space/${id}/dm/${chatId}`);
+
+      setSelectedId(memberId);
     } catch (error) {
       onError(error as Parameters<typeof onError>[0]);
     }
@@ -37,13 +40,15 @@ const Sidebar: FC<Pick<Space, 'name' | 'members' | 'id'>> = ({
       <div className="divider" />
       <h4 className="text-lg font-bold mb-4">Channels</h4>
       <h4 className="text-lg font-bold mb-4">Direct messages</h4>
-      <ul className="mb-4 ml-2">
+      <ul className="mb-4">
         {members
           .filter(({ user: { id } }) => id !== session.user.id)
           .map(({ id, user: { username } }) => (
             <li key={id} className="[&:not(:last-child)]:mb-2">
               <button
-                className="btn btn-ghost"
+                className={`cursor-pointer hover:bg-neutral px-2 py-1 rounded-md w-full text-left ${
+                  selectedId === id ? ' bg-neutral' : ''
+                }`}
                 onClick={() => handleSelectDm(id)}
               >
                 {username}
