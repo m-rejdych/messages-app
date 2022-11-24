@@ -1,7 +1,7 @@
-import AppLayout from '../../../../layout/app';
-import SpaceLayout from '../../../../layout/space';
-import { getAuthedServerSideProps } from '../../../../utils/session';
-import type { NextPageWithLayout } from '../../../../types/page';
+import AppLayout from '../../../layout/app';
+import SpaceLayout from '../../../layout/space';
+import { getAuthedServerSideProps } from '../../../utils/session';
+import type { NextPageWithLayout } from '../../../types/page';
 
 const Space: NextPageWithLayout = () => (
   <div className="h-full grid place-items-center">

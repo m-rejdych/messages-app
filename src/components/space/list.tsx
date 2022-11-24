@@ -49,7 +49,7 @@ const SpacesList: FC<Props> = ({ spaces, action, ...rest }) => {
                 <h3 className="text-accent text-lg font-semibold">{resolvedAction.text}</h3>
               ) : resolvedAction.navigate ? (
                 <Link
-                  href={`/app/space/${id}`}
+                  href={`/app/${id}`}
                   className="btn btn-primary btn-outline"
                 >
                   {resolvedAction.text}

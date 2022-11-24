@@ -26,7 +26,7 @@ const Sidebar: FC<Pick<Space, 'name' | 'members' | 'id'>> = ({
         spaceId: id,
         memberId,
       });
-      await router.push(`/app/space/${id}/dm/${chatId}`);
+      await router.push(`/app/${id}/${chatId}`);
 
       setSelectedId(memberId);
     } catch (error) {

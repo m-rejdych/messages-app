@@ -1,16 +1,16 @@
 import { useRouter } from 'next/router';
 import HashLoader from 'react-spinners/HashLoader';
 
-import AppLayout from '../../../../../layout/app';
-import SpaceLayout from '../../../../../layout/space';
-import { getAuthedServerSideProps } from '../../../../../utils/session';
-import { trpc } from '../../../../../utils/trpc';
-import type { NextPageWithLayout } from '../../../../../types/page';
+import AppLayout from '../../../layout/app';
+import SpaceLayout from '../../../layout/space';
+import { getAuthedServerSideProps } from '../../../utils/session';
+import { trpc } from '../../../utils/trpc';
+import type { NextPageWithLayout } from '../../../types/page';
 
 const Dm: NextPageWithLayout = () => {
   const { query } = useRouter();
   const { data, isInitialLoading, error } = trpc.chat.getDmById.useQuery({
-    chatId: parseInt(query.dmId as string, 10),
+    chatId: parseInt(query.chatId as string, 10),
     spaceId: parseInt(query.spaceId as string, 10),
   });
 
@@ -36,7 +36,7 @@ const Dm: NextPageWithLayout = () => {
 
   if (!data) return null;
 
-  return <div>{query.dmId}</div>;
+  return <div>{data.id}</div>;
 };
 
 Dm.getLayout = (page) => (

@@ -34,7 +34,7 @@ const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
   const handleJoin = async (id: number): Promise<void> => {
     try {
       await joinMutation.mutateAsync(id);
-      await router.push(`/app/space/${id}`);
+      await router.push(`/app/${id}`);
     } catch (error) {
       onError(error as Parameters<typeof onError>[0]);
     }
