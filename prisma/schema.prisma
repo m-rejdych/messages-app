@@ -22,8 +22,8 @@ model Space {
   isPrivate Boolean @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-  creatorId Int
-  creator User @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+  creatorId Int?
+  creator User? @relation(fields: [creatorId], references: [id], onDelete: SetNull)
   members Membership[]
   chats Chat[]
 }
@@ -33,10 +33,10 @@ model Membership {
   createdAt DateTime @default(now())
   spaceId Int
   userId Int
-  roleId Int
+  roleId Int?
   space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role Role @relation(fields: [roleId], references: [id], onDelete: SetNull)
+  role Role? @relation(fields: [roleId], references: [id], onDelete: SetNull)
   messages Message[]
   chats ChatsOnMemberships[]
 }
@@ -53,9 +53,9 @@ model Chat {
   messages Message[]
   members ChatsOnMemberships[]
   spaceId Int
-  chatTypeId Int
+  chatTypeId Int?
   space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
-  type ChatType @relation(fields: [chatTypeId], references: [id], onDelete: SetNull)
+  type ChatType? @relation(fields: [chatTypeId], references: [id], onDelete: SetNull)
 }
 
 model ChatType {
@@ -67,9 +67,9 @@ model ChatType {
 model Message {
   id Int @id @default(autoincrement())
   content String
-  authorId Int
+  authorId Int?
   chatId Int
-  author Membership @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  author Membership? @relation(fields: [authorId], references: [id], onDelete: SetNull)
   chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
 }
 
