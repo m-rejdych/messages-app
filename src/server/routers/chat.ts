@@ -17,7 +17,10 @@ export default router({
               id: true,
               content: true,
               author: {
-                select: { id: true, user: { select: { username: true } } },
+                select: {
+                  id: true,
+                  user: { select: { id: true, username: true } },
+                },
               },
             },
           },

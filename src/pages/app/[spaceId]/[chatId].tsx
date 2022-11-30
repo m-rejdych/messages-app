@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import { useSession } from 'next-auth/react';
 import HashLoader from 'react-spinners/HashLoader';
 
 import AppLayout from '../../../layout/app';
@@ -9,10 +10,12 @@ import { getAuthedServerSideProps } from '../../../utils/session';
 import { trpc } from '../../../utils/trpc';
 import type { NextPageWithLayout } from '../../../types/page';
 
-const Dm: NextPageWithLayout = () => {
+const Chat: NextPageWithLayout = () => {
   const [value, setValue] = useState('');
   const { query } = useRouter();
   const onError = useAuthError();
+  const utils = trpc.useContext();
+  const { data: session } = useSession();
   const { data, isInitialLoading, error } = trpc.chat.getDmById.useQuery(
     {
       chatId: parseInt(query.chatId as string, 10),
@@ -21,6 +24,8 @@ const Dm: NextPageWithLayout = () => {
     { onError },
   );
   const sendMessageMutation = trpc.message.send.useMutation();
+
+  if (!session?.user) return null;
 
   if (isInitialLoading) {
     return (
@@ -43,7 +48,6 @@ const Dm: NextPageWithLayout = () => {
   }
 
   if (!data) return null;
-
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
     setValue(e.target.value);
   };
@@ -59,22 +63,50 @@ const Dm: NextPageWithLayout = () => {
     try {
       const spaceId = parseInt(query.spaceId as string, 10);
       const chatId = parseInt(query.chatId as string, 10);
-      const message = await sendMessageMutation.mutateAsync({
+      await sendMessageMutation.mutateAsync({
         spaceId,
         chatId,
         content: value,
       });
-      console.log(message);
       setValue('');
     } catch (error) {
       onError(error as Parameters<typeof onError>[0]);
     }
   };
 
+  const isMyMessage = (authorId: number): boolean =>
+    authorId === session.user.id;
+
   return (
     <div className="h-full">
       <div className="h-full border rounded-md border-neutral">
-        <div className="h-4/5 p-4 border-b border-neutral">{data.id}</div>
+        <div className="h-4/5 p-4 border-b border-neutral">
+          {data.messages.map(
+            ({
+              id,
+              content,
+              author: {
+                user: { id: authorId, username },
+              },
+            }) => (
+              <div
+                key={id}
+                className={`chat ${
+                  isMyMessage(authorId) ? 'chat-end' : 'chat-start'
+                }`}
+              >
+                <div className="chat-header opacity-70">{username}</div>
+                <div
+                  className={`chat-bubble${
+                    isMyMessage(authorId) ? ' chat-bubble-secondary' : ''
+                  }`}
+                >
+                  {content}
+                </div>
+              </div>
+            ),
+          )}
+        </div>
         <div className="h-1/5 p-4">
           <textarea
             className="textarea textarea-bordered resize-none h-full w-full"
@@ -89,7 +121,7 @@ const Dm: NextPageWithLayout = () => {
   );
 };
 
-Dm.getLayout = (page) => (
+Chat.getLayout = (page) => (
   <AppLayout>
     <SpaceLayout>{page}</SpaceLayout>
   </AppLayout>
@@ -97,4 +129,4 @@ Dm.getLayout = (page) => (
 
 export { getAuthedServerSideProps as getServerSideProps };
 
-export default Dm;
+export default Chat;
