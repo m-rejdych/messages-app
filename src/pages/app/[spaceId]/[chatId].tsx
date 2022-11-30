@@ -48,6 +48,7 @@ const Chat: NextPageWithLayout = () => {
   }
 
   if (!data) return null;
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
     setValue(e.target.value);
   };
