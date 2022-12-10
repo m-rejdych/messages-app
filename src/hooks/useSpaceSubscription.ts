@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { useSetAtom } from 'jotai';
+import { pusherAtom } from '../atoms/pusher';
 import Pusher, { type Members, type PresenceChannel } from 'pusher-js';
 
 export interface MemberInfo {
@@ -17,6 +19,7 @@ type UseSpaceSubscription = (spaceId: number) => {
 
 const useSpaceSubscription: UseSpaceSubscription = (spaceId: number) => {
   const [members, setMembers] = useState<Record<string, MemberInfo>>({});
+  const setPusher = useSetAtom(pusherAtom);
 
   useEffect(() => {
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
@@ -28,6 +31,7 @@ const useSpaceSubscription: UseSpaceSubscription = (spaceId: number) => {
         transport: 'ajax',
       },
     });
+    setPusher(pusher);
 
     const spaceChannel = pusher.subscribe(
       `presence-sp-${spaceId}`,
@@ -51,8 +55,10 @@ const useSpaceSubscription: UseSpaceSubscription = (spaceId: number) => {
 
     return () => {
       pusher.unbind_all();
+      pusher.unsubscribe(spaceChannel.name);
       pusher.disconnect();
       setMembers({});
+      setPusher(null);
     };
   }, [spaceId]);
 

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import HashLoader from 'react-spinners/HashLoader';
@@ -6,6 +6,9 @@ import HashLoader from 'react-spinners/HashLoader';
 import AppLayout from '../../../layout/app';
 import SpaceLayout from '../../../layout/space';
 import useAuthError from '../../../hooks/useAuthError';
+import useChatSubscription, {
+  type Message,
+} from '../../../hooks/useChatSubscription';
 import { getAuthedServerSideProps } from '../../../utils/session';
 import { trpc } from '../../../utils/trpc';
 import type { NextPageWithLayout } from '../../../types/page';
@@ -14,15 +17,37 @@ const Chat: NextPageWithLayout = () => {
   const [value, setValue] = useState('');
   const { query } = useRouter();
   const onError = useAuthError();
+  const spaceId = parseInt(query.spaceId as string, 10);
+  const chatId = parseInt(query.chatId as string, 10);
+  const utils = trpc.useContext();
+  const messagesWindowRef = useRef<HTMLDivElement | null>(null);
   const { data: session } = useSession();
-  const { data, isInitialLoading, error } = trpc.chat.getDmById.useQuery(
+  const { data, isInitialLoading, error } = trpc.chat.getById.useQuery(
     {
-      chatId: parseInt(query.chatId as string, 10),
-      spaceId: parseInt(query.spaceId as string, 10),
+      chatId,
+      spaceId,
     },
-    { onError },
+    {
+      onError,
+    },
   );
   const sendMessageMutation = trpc.message.send.useMutation();
+
+  const handleNewMessage = (msg: Message): void => {
+    utils.chat.getById.setData(
+      { chatId, spaceId },
+      (prev) => prev && { ...prev, messages: [...prev.messages, msg] },
+    );
+  };
+
+  useChatSubscription(spaceId, chatId, handleNewMessage);
+
+  useEffect(() => {
+    if (!messagesWindowRef.current) return;
+
+    messagesWindowRef.current.scrollTop =
+      messagesWindowRef.current.scrollHeight;
+  }, [data?.messages.length]);
 
   if (!session?.user) return null;
 
@@ -61,8 +86,6 @@ const Chat: NextPageWithLayout = () => {
     if (!value.trim().length) return;
 
     try {
-      const spaceId = parseInt(query.spaceId as string, 10);
-      const chatId = parseInt(query.chatId as string, 10);
       await sendMessageMutation.mutateAsync({
         spaceId,
         chatId,
@@ -80,7 +103,10 @@ const Chat: NextPageWithLayout = () => {
   return (
     <div className="h-full">
       <div className="h-full border rounded-md border-neutral">
-        <div className="h-4/5 p-4 border-b border-neutral">
+        <div
+          ref={messagesWindowRef}
+          className="h-4/5 p-4 border-b border-neutral overflow-auto"
+        >
           {data.messages.map(
             ({
               id,

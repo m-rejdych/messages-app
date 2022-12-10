@@ -5,7 +5,7 @@ import { ChatTypeName } from '@prisma/client';
 import { router, protectedProcedure, membershipMiddleware } from '../trpc';
 
 export default router({
-  getDmById: protectedProcedure
+  getById: protectedProcedure
     .input(z.object({ spaceId: z.number(), chatId: z.number() }))
     .use(membershipMiddleware)
     .query(async ({ ctx: { prisma }, input: { spaceId, chatId } }) => {

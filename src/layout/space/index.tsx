@@ -1,4 +1,4 @@
-import { type FC, useEffect } from 'react';
+import { type FC } from 'react';
 import { useRouter } from 'next/router';
 import HashLoader from 'react-spinners/HashLoader';
 

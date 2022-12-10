@@ -2,13 +2,14 @@ import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
 import { router, protectedProcedure, membershipMiddleware } from '../trpc';
+import { Event } from '../../types/events';
 
 export default router({
   send: protectedProcedure
     .input(
       z.object({
-        spaceId: z.number(),
         chatId: z.number(),
+        spaceId: z.number(),
         content: z
           .string()
           .trim()
@@ -18,7 +19,7 @@ export default router({
     .use(membershipMiddleware)
     .mutation(
       async ({
-        ctx: { prisma, membership },
+        ctx: { prisma, pusher, membership },
         input: { spaceId, chatId, content },
       }) => {
         const chat = await prisma.chat.findUnique({
@@ -26,6 +27,7 @@ export default router({
           select: {
             id: true,
             spaceId: true,
+            space: { select: { members: { select: { id: true } } } },
             members: { select: { memberId: true } },
           },
         });
@@ -35,16 +37,13 @@ export default router({
             message: 'Chat not found. ',
           });
         }
-        if (chat.spaceId !== spaceId) {
+        if (spaceId !== chat.spaceId) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
-            message: '"spaceId" paramater does not match chat\'s space.',
+            message: '"spaceId" parameter does not match chat\'s space id.',
           });
         }
-        if (
-          !chat.members.length ||
-          !chat.members.some(({ memberId }) => memberId === membership.id)
-        ) {
+        if (!chat.members.some(({ memberId }) => memberId === membership.id)) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'You are not a member of this chat.',
@@ -53,9 +52,23 @@ export default router({
 
         const message = await prisma.message.create({
           data: { authorId: membership.id, content, chatId: chat.id },
+          select: {
+            id: true,
+            content: true,
+            author: {
+              select: {
+                id: true,
+                user: { select: { id: true, username: true } },
+              },
+            },
+          },
         });
 
-        // TODO: SEND WEBSOCKET MESSAGE
+        pusher.trigger(
+          `private-sp-${spaceId}-ch-${chatId}`,
+          Event.NewMessage,
+          message,
+        );
 
         return message;
       },

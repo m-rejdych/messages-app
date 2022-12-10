@@ -54,9 +54,9 @@ const Sidebar: FC<Props> = ({ id, name, members, activeMembers }) => {
               onClick={() => handleSelectDm(id)}
             >
               <div
-                className={`avatar placeholder${
+                className={`mr-3 avatar placeholder${
                   id in activeMembers ? ' online' : ''
-                } mr-3`}
+                }`}
               >
                 <div className="bg-neutral-focus text-neutral-content rounded-full w-10">
                   {username[0].toUpperCase()}
