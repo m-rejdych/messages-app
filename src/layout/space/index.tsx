@@ -1,15 +1,11 @@
 import { type FC, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Pusher from 'pusher-js';
 import HashLoader from 'react-spinners/HashLoader';
 
 import useAuthError from '../../hooks/useAuthError';
+import useSpaceSubscription from '../../hooks/useSpaceSubscription';
 import Sidebar from './sidebar';
 import { trpc } from '../../utils/trpc';
-
-interface UserData {
-  user_data: string;
-}
 
 interface Props {
   children: React.ReactNode;
@@ -23,25 +19,7 @@ const SpaceLayout: FC<Props> = ({ children }) => {
     { spaceId },
     { onError, retry: false, refetchOnWindowFocus: false },
   );
-
-  useEffect(() => {
-    const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
-      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string,
-      forceTLS: true,
-      channelAuthorization: {
-        endpoint: process.env
-          .NEXT_PUBLIC_PUSHER_AUTHORIZATION_ENDPOINT as string,
-        transport: 'ajax',
-      },
-    });
-
-    const spaceChannel = pusher.subscribe(`presence-sp-${spaceId}`);
-
-    return () => {
-      pusher.unbind_all();
-      pusher.disconnect();
-    };
-  }, []);
+  const { members: activeMembers } = useSpaceSubscription(spaceId);
 
   if (isInitialLoading) {
     return (
@@ -67,7 +45,12 @@ const SpaceLayout: FC<Props> = ({ children }) => {
 
   return (
     <div className="flex items-start h-full py-8">
-      <Sidebar id={spaceId} name={data.name} members={data.members} />
+      <Sidebar
+        id={spaceId}
+        name={data.name}
+        members={data.members}
+        activeMembers={activeMembers}
+      />
       <div className="flex-1 h-full">{children}</div>
     </div>
   );

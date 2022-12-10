@@ -4,14 +4,15 @@ import { useSession } from 'next-auth/react';
 
 import useAuthError from '../../hooks/useAuthError';
 import { trpc, type RouterOutputs } from '../../utils/trpc';
+import type { MemberInfo } from '../../hooks/useSpaceSubscription';
 
 type Space = RouterOutputs['space']['getById'];
 
-const Sidebar: FC<Pick<Space, 'name' | 'members' | 'id'>> = ({
-  id,
-  name,
-  members,
-}) => {
+interface Props extends Pick<Space, 'name' | 'members' | 'id'> {
+  activeMembers: Record<string, MemberInfo>;
+}
+
+const Sidebar: FC<Props> = ({ id, name, members, activeMembers }) => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const { data: session } = useSession();
   const router = useRouter();
@@ -44,15 +45,24 @@ const Sidebar: FC<Pick<Space, 'name' | 'members' | 'id'>> = ({
         {members
           .filter(({ user: { id } }) => id !== session.user.id)
           .map(({ id, user: { username } }) => (
-            <li key={id} className="[&:not(:last-child)]:mb-2">
-              <button
-                className={`cursor-pointer hover:bg-neutral px-2 py-1 rounded-md w-full text-left ${
-                  selectedId === id ? ' bg-neutral' : ''
-                }`}
-                onClick={() => handleSelectDm(id)}
+            <li
+              key={id}
+              className={`[&:not(:last-child)]:mb-2 flex items-center cursor-pointer hover:bg-neutral px-2 py-1 rounded-md w-full text-left ${
+                selectedId === id ? ' bg-neutral' : ''
+              }`}
+              role="button"
+              onClick={() => handleSelectDm(id)}
+            >
+              <div
+                className={`avatar placeholder${
+                  id in activeMembers ? ' online' : ''
+                } mr-3`}
               >
-                {username}
-              </button>
+                <div className="bg-neutral-focus text-neutral-content rounded-full w-10">
+                  {username[0].toUpperCase()}
+                </div>
+              </div>
+              {username}
             </li>
           ))}
       </ul>
