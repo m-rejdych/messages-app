@@ -28,22 +28,14 @@ const SpaceLayout: FC<Props> = ({ children }) => {
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY as string, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string,
       forceTLS: true,
-      userAuthentication: {
-        endpoint: process.env.NEXT_PUBLIC_PUSHER_AUTH_ENDPOINT as string,
+      channelAuthorization: {
+        endpoint: process.env
+          .NEXT_PUBLIC_PUSHER_AUTHORIZATION_ENDPOINT as string,
         transport: 'ajax',
-        params: {
-          spaceId,
-        },
       },
     });
-    pusher.signin();
 
-    pusher.bind('pusher:signin_success', (data: UserData) => {
-      console.log(JSON.parse(data.user_data));
-    });
-    pusher.bind('pusher:error', (data: unknown) => {
-      console.log(data);
-    });
+    const spaceChannel = pusher.subscribe(`presence-sp-${spaceId}`);
 
     return () => {
       pusher.unbind_all();
