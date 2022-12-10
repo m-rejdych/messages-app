@@ -14,7 +14,6 @@ const Chat: NextPageWithLayout = () => {
   const [value, setValue] = useState('');
   const { query } = useRouter();
   const onError = useAuthError();
-  const utils = trpc.useContext();
   const { data: session } = useSession();
   const { data, isInitialLoading, error } = trpc.chat.getDmById.useQuery(
     {
