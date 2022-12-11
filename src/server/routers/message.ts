@@ -10,6 +10,7 @@ export default router({
       z.object({
         chatId: z.number(),
         spaceId: z.number(),
+        socketId: z.string().optional(),
         content: z
           .string()
           .trim()
@@ -20,7 +21,7 @@ export default router({
     .mutation(
       async ({
         ctx: { prisma, pusher, membership },
-        input: { spaceId, chatId, content },
+        input: { spaceId, chatId, socketId, content },
       }) => {
         const chat = await prisma.chat.findUnique({
           where: { id: chatId },
@@ -64,10 +65,12 @@ export default router({
           },
         });
 
+        // TEST THIS ON SERVERLESS - POSSIBLE AWAIT NEEDED
         pusher.trigger(
           `private-sp-${spaceId}-ch-${chatId}`,
           Event.NewMessage,
           message,
+          { socket_id: socketId },
         );
 
         return message;

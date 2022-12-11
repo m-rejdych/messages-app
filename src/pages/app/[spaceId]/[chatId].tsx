@@ -33,14 +33,14 @@ const Chat: NextPageWithLayout = () => {
   );
   const sendMessageMutation = trpc.message.send.useMutation();
 
-  const handleNewMessage = (msg: Message): void => {
+  const addMessage = (msg: Message): void => {
     utils.chat.getById.setData(
       { chatId, spaceId },
       (prev) => prev && { ...prev, messages: [...prev.messages, msg] },
     );
   };
 
-  useChatSubscription(spaceId, chatId, handleNewMessage);
+  const { socketId } = useChatSubscription(spaceId, chatId, addMessage);
 
   useEffect(() => {
     if (!messagesWindowRef.current) return;
@@ -86,12 +86,14 @@ const Chat: NextPageWithLayout = () => {
     if (!value.trim().length) return;
 
     try {
-      await sendMessageMutation.mutateAsync({
+      const message = await sendMessageMutation.mutateAsync({
         spaceId,
         chatId,
+        socketId,
         content: value,
       });
       setValue('');
+      addMessage(message);
     } catch (error) {
       onError(error as Parameters<typeof onError>[0]);
     }

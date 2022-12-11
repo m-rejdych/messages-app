@@ -7,11 +7,17 @@ import { Event } from '../types/events';
 
 export type Message = RouterOutputs['message']['send'];
 
-const useChatSubscription = (
+type UseChatSubscription = (
   spaceId: number,
   chatId: number,
   newMsgCb: (msg: Message) => void,
-): void => {
+) => { socketId?: string };
+
+const useChatSubscription: UseChatSubscription = (
+  spaceId,
+  chatId,
+  newMsgCb,
+) => {
   const pusher = useAtomValue(pusherAtom);
 
   useEffect(() => {
@@ -26,6 +32,8 @@ const useChatSubscription = (
       chatChannel.unsubscribe();
     };
   }, [pusher, spaceId, chatId]);
+
+  return { socketId: pusher?.connection.socket_id };
 };
 
 export default useChatSubscription;
