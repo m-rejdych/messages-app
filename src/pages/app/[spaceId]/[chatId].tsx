@@ -109,30 +109,38 @@ const Chat: NextPageWithLayout = () => {
           ref={messagesWindowRef}
           className="h-4/5 p-4 border-b border-neutral overflow-auto"
         >
-          {data.messages.map(
-            ({
-              id,
-              content,
-              author: {
-                user: { id: authorId, username },
-              },
-            }) => (
-              <div
-                key={id}
-                className={`chat ${
-                  isMyMessage(authorId) ? 'chat-end' : 'chat-start'
-                }`}
-              >
-                <div className="chat-header opacity-70">{username}</div>
+          {data.messages.length ? (
+            data.messages.map(
+              ({
+                id,
+                content,
+                author: {
+                  user: { id: authorId, username },
+                },
+              }) => (
                 <div
-                  className={`chat-bubble${
-                    isMyMessage(authorId) ? ' chat-bubble-secondary' : ''
+                  key={id}
+                  className={`chat ${
+                    isMyMessage(authorId) ? 'chat-end' : 'chat-start'
                   }`}
                 >
-                  {content}
+                  <div className="chat-header opacity-70">{username}</div>
+                  <div
+                    className={`chat-bubble${
+                      isMyMessage(authorId) ? ' chat-bubble-secondary' : ''
+                    }`}
+                  >
+                    {content}
+                  </div>
                 </div>
-              </div>
-            ),
+              ),
+            )
+          ) : (
+            <div className="grid place-items-center h-full">
+              <h1 className="text-2xl text-secondary">
+                You have no messages yet
+              </h1>
+            </div>
           )}
         </div>
         <div className="h-1/5 p-4">
