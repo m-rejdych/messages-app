@@ -38,6 +38,47 @@ export default router({
 
       return chat;
     }),
+  getDms: protectedProcedure
+    .input(z.object({ spaceId: z.number() }))
+    .use(membershipMiddleware)
+    .query(async ({ ctx: { prisma, membership } }) => {
+      const chatType = await prisma.chatType.findUnique({
+        where: { name: ChatTypeName.DirectMessage },
+      });
+      if (!chatType) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Chat type not found.',
+        });
+      }
+
+      const dms = await prisma.chat.findMany({
+        where: {
+          chatTypeId: chatType.id,
+          members: { some: { memberId: membership.id } },
+        },
+        select: {
+          id: true,
+          members: {
+            select: {
+              member: {
+                select: {
+                  id: true,
+                  user: {
+                    select: {
+                      id: true,
+                      username: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return dms;
+    }),
   getOrCreateDmByMemberId: protectedProcedure
     .input(z.object({ spaceId: z.number(), memberId: z.number() }))
     .use(membershipMiddleware)
@@ -56,10 +97,10 @@ export default router({
 
         if (matchedChat) return matchedChat;
 
-        const otherMembership = await prisma.membership.findUnique({
-          where: { id: memberId },
+        const otherMembership = await prisma.membership.findFirst({
+          where: { id: memberId, spaceId },
         });
-        if (!otherMembership || membership.spaceId !== spaceId) {
+        if (!otherMembership) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'Member with this id does not exist in the space.',

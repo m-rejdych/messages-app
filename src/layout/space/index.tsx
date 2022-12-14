@@ -46,9 +46,7 @@ const SpaceLayout: FC<Props> = ({ children }) => {
   return (
     <div className="flex items-start h-full py-8">
       <Sidebar
-        id={spaceId}
-        name={data.name}
-        members={data.members}
+        spaceName={data.name}
         activeMembers={activeMembers}
       />
       <div className="flex-1 h-full">{children}</div>
