@@ -36,36 +36,44 @@ const Sidebar: FC<Props> = ({ id, name, members, activeMembers }) => {
   };
 
   return (
-    <div className="w-1/3 md:w-1/4 pr-4">
+    <div className="w-1/3 md:w-1/4 h-full flex flex-col pr-4">
       <h3 className="text-xl mb-4 font-bold">{name}</h3>
       <div className="divider" />
-      <h4 className="text-lg font-bold mb-4">Channels</h4>
-      <h4 className="text-lg font-bold mb-4">Direct messages</h4>
-      <ul className="mb-4">
-        {members
-          .filter(({ user: { id } }) => id !== session.user.id)
-          .map(({ id, user: { username } }) => (
-            <li
-              key={id}
-              className={`[&:not(:last-child)]:mb-2 flex items-center cursor-pointer hover:bg-neutral px-2 py-1 rounded-md w-full text-left ${
-                selectedId === id ? ' bg-neutral' : ''
-              }`}
-              role="button"
-              onClick={() => handleSelectDm(id)}
-            >
-              <div
-                className={`mr-3 avatar placeholder${
-                  id in activeMembers ? ' online' : ''
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <h4 className="text-lg font-bold mb-4">Channels</h4>
+        {/* <ul className="flex-1 overflow-auto" /> */}
+        <div className="flex-1 grid place-items-center">
+          <p className="font-semibold text-secondary">No channels</p>
+        </div>
+      </div>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <h4 className="text-lg font-bold mb-4">Direct messages</h4>
+        <ul className="flex-1 overflow-auto">
+          {members
+            .filter(({ user: { id } }) => id !== session.user.id)
+            .map(({ id, user: { username } }) => (
+              <li
+                key={id}
+                className={`[&:not(:last-child)]:mb-2 flex items-center cursor-pointer hover:bg-neutral px-2 py-1 rounded-md w-full text-left ${
+                  selectedId === id ? ' bg-neutral' : ''
                 }`}
+                role="button"
+                onClick={() => handleSelectDm(id)}
               >
-                <div className="bg-neutral-focus text-neutral-content rounded-full w-10">
-                  {username[0].toUpperCase()}
+                <div
+                  className={`mr-3 avatar placeholder${
+                    id in activeMembers ? ' online' : ''
+                  }`}
+                >
+                  <div className="bg-neutral-focus text-neutral-content rounded-full w-10">
+                    {username[0].toUpperCase()}
+                  </div>
                 </div>
-              </div>
-              {username}
-            </li>
-          ))}
-      </ul>
+                {username}
+              </li>
+            ))}
+        </ul>
+      </div>
     </div>
   );
 };
