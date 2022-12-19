@@ -49,7 +49,7 @@ model Role {
 
 model Chat {
   id Int @id @default(autoincrement())
-  name String?
+  name String? @unique
   messages Message[]
   members ChatsOnMemberships[]
   spaceId Int

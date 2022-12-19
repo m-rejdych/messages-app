@@ -132,4 +132,36 @@ export default router({
         return chat;
       },
     ),
+  createChannel: protectedProcedure
+    .input(
+      z.object({
+        spaceId: z.number(),
+        name: z
+          .string()
+          .min(2, 'Channel name have to be at least 2 characters long.'),
+      }),
+    )
+    .use(membershipMiddleware)
+    .mutation(
+      async ({ ctx: { prisma, membership }, input: { spaceId, name } }) => {
+        const chatType = await prisma.chatType.findUnique({
+          where: { name: ChatTypeName.Channel },
+        });
+        if (!chatType) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'Chat type not found.',
+          });
+        }
+
+        const channel = await prisma.chat.create({
+          data: { spaceId, name, chatTypeId: chatType.id },
+        });
+        await prisma.chatsOnMemberships.create({
+          data: { chatId: channel.id, memberId: membership.id },
+        });
+
+        return channel;
+      },
+    ),
 });
