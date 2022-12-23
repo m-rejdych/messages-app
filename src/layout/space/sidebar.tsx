@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 
 import useAuthError from '../../hooks/useAuthError';
+import CreateChannelButton from '../../components/chat/createChannelButton';
 import { trpc, type RouterOutputs } from '../../utils/trpc';
 import type { MemberInfo } from '../../hooks/useSpaceSubscription';
 
@@ -79,7 +80,10 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
       <h3 className="text-xl mb-4 font-bold">{spaceName}</h3>
       <div className="divider" />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <h4 className="text-lg font-bold mb-4">Channels</h4>
+        <div className="flex items-center justify-between md-4">
+          <h4 className="text-lg font-bold">Channels</h4>
+          <CreateChannelButton />
+        </div>
         {/* <ul className="flex-1 overflow-auto" /> */}
         <div className="flex-1 grid place-items-center">
           <p className="font-semibold text-secondary">No channels</p>

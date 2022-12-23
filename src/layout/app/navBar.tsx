@@ -2,7 +2,7 @@ import { type FC, useState } from 'react';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 
-import Dropdown from '../../components/common/dropdown';
+import Menu from '../../components/common/menu';
 import type { Item } from '../../types/common/dropdown';
 
 enum MenuItemValue {
@@ -35,7 +35,7 @@ const NavBar: FC = () => {
   return (
     <div className="navbar h-16 bg-base-100 fixed top-0 left-0 right-0 shadow-lg">
       <div className="navbar-start">
-        <Dropdown
+        <Menu
           open={menuOpen}
           onItemClick={handleMenuItemClick}
           items={MENU_ITEMS}
@@ -61,7 +61,7 @@ const NavBar: FC = () => {
               />
             </svg>
           </label>
-        </Dropdown>
+        </Menu>
       </div>
       <div className="navbar-center">
         <Link href="/app" className="btn btn-ghost normal-case text-xl">

@@ -101,24 +101,20 @@ const AuthForm: FC = () => {
                 />
               ),
             )}
-            <div className="form-control mt-6">
-              <button
-                className={`btn btn-primary${
-                  registerMutation.isLoading || loading ? ' loading' : ''
-                }`}
-                type="submit"
-              >
-                {isRegistering ? 'Register' : 'Login'}
-              </button>
-            </div>
-            <div className="form-control mt-3">
-              <span className="label-text-alt">
-                {linkBaseText}{' '}
-                <Link href={linkUrl} className="text-accent link link-hover">
-                  {isRegistering ? 'Login' : 'Register'}
-                </Link>
-              </span>
-            </div>
+            <button
+              className={`mt-6 btn btn-primary${
+                registerMutation.isLoading || loading ? ' loading' : ''
+              }`}
+              type="submit"
+            >
+              {isRegistering ? 'Register' : 'Login'}
+            </button>
+            <span className="label-text-alt mt-3">
+              {linkBaseText}{' '}
+              <Link href={linkUrl} className="text-accent link link-hover">
+                {isRegistering ? 'Login' : 'Register'}
+              </Link>
+            </span>
           </div>
         </form>
       </div>

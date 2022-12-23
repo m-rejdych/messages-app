@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 import Fade from './fade';
-import type { Item } from '../../types/common/dropdown';
+import type { Item } from '../../types/common/menu';
 
 interface Props<T> {
   children?: ReactNode;
@@ -10,7 +10,7 @@ interface Props<T> {
   open: boolean;
 }
 
-const Dropdown = <T extends unknown>({
+const Menu = <T extends unknown>({
   children,
   items,
   onItemClick,
@@ -33,4 +33,4 @@ const Dropdown = <T extends unknown>({
   </div>
 );
 
-export default Dropdown;
+export default Menu;

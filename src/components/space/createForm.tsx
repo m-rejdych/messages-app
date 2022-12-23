@@ -1,11 +1,3 @@
-import { FC } from 'react';
-import { useForm } from 'react-hook-form';
-
-import Input from '../common/input';
-import Checkbox from '../common/checkbox';
-import useAuthError from '../../hooks/useAuthError';
-import { trpc } from '../../utils/trpc';
-import { DEFAULTS, FIELDS } from '../../constants/space/form';
 
 type FieldValues = {
   [P in keyof typeof DEFAULTS]: typeof DEFAULTS[P];

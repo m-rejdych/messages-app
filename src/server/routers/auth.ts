@@ -18,6 +18,7 @@ export default router({
           ),
         username: z
           .string()
+          .trim()
           .min(3, 'Username should be at least 3 characters long.'),
       }),
     )

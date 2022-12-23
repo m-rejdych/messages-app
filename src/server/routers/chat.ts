@@ -138,6 +138,7 @@ export default router({
         spaceId: z.number(),
         name: z
           .string()
+          .trim()
           .min(2, 'Channel name have to be at least 2 characters long.'),
       }),
     )
