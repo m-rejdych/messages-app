@@ -13,6 +13,7 @@ export const FIELDS: Field<keyof typeof DEFAULTS>[] = [
       placeholder: 'space name',
     },
     registerOptions: {
+      setValueAs: (value: string) => value.trim(),
       required: {
         value: true,
         message: 'Space name is required.',

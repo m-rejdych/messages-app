@@ -57,6 +57,7 @@ export const REGISTER_FIELDS: Field<keyof typeof REGISTER_DEFAULTS>[] = [
   {
     name: 'username',
     registerOptions: {
+      setValueAs: (value: string) => value.trim(),
       required: {
         message: 'Username is required.',
         value: true,
