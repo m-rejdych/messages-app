@@ -5,10 +5,14 @@ import { useSession } from 'next-auth/react';
 
 import useAuthError from '../../hooks/useAuthError';
 import CreateChannelButton from '../../components/chat/createChannelButton';
+import ChatsList, { type ListItem } from '../../components/chat/list';
 import { trpc, type RouterOutputs } from '../../utils/trpc';
 import type { MemberInfo } from '../../hooks/useSpaceSubscription';
 
-type Chat = RouterOutputs['chat']['getDms'] extends Array<infer R> ? R : never;
+type Dm = RouterOutputs['chat']['getDms'] extends Array<infer R> ? R : never;
+type Channel = RouterOutputs['chat']['getChannels'] extends Array<infer R>
+  ? R
+  : never;
 
 interface Props {
   spaceName: string;
@@ -28,10 +32,14 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
     },
     { onError },
   );
+  const { data: channels } = trpc.chat.getChannels.useQuery(
+    { spaceId },
+    { onError },
+  );
 
   if (!session?.user) return null;
 
-  const renderListItem = ({ id, members }: Chat): React.ReactNode => {
+  const formatToDmsListItem = ({ id, members }: Dm): ListItem => {
     const otherMember = members.find(
       ({
         member: {
@@ -40,7 +48,14 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
       }) => userId !== session.user.id,
     );
 
-    if (!otherMember) return null;
+    if (!otherMember) {
+      return {
+        id,
+        text: '',
+        isOnline: false,
+        selected: false,
+      };
+    }
 
     const {
       member: {
@@ -49,50 +64,49 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
       },
     } = otherMember;
 
-    return (
-      <li
-        key={id}
-        className={`[&:not(:last-child)]:mb-2 px-2 py-1 rounded-md w-full text-left hover:bg-neutral${
-          id === currentChatId ? ' bg-neutral' : ''
-        }`}
-      >
-        <Link
-          href={`/app/${spaceId}/${id}`}
-          className="flex items-center cursor-pointer w-full"
-        >
-          <div
-            className={`mr-3 avatar placeholder${
-              memberId in activeMembers ? ' online' : ''
-            }`}
-          >
-            <div className="bg-neutral-focus text-neutral-content rounded-full w-10">
-              {username[0].toUpperCase()}
-            </div>
-          </div>
-          {username}
-        </Link>
-      </li>
-    );
+    return {
+      id,
+      text: username,
+      isOnline: memberId in activeMembers,
+      selected: id === currentChatId,
+    };
   };
+
+  const formatToChannelsListItem = ({ id, name }: Channel): ListItem => ({
+    id,
+    text: name ?? '',
+    selected: id === currentChatId,
+  });
 
   return (
     <div className="w-1/3 md:w-1/4 h-full flex flex-col pr-4">
       <h3 className="text-xl mb-4 font-bold">{spaceName}</h3>
       <div className="divider" />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between md-4">
+        <div className="flex items-center justify-between mb-4">
           <h4 className="text-lg font-bold">Channels</h4>
           <CreateChannelButton />
         </div>
-        {/* <ul className="flex-1 overflow-auto" /> */}
-        <div className="flex-1 grid place-items-center">
-          <p className="font-semibold text-secondary">No channels</p>
-        </div>
+        {channels?.length ? (
+          <ChatsList
+            spaceId={spaceId}
+            items={channels.map(formatToChannelsListItem)}
+            className="overflow-auto"
+          />
+        ) : (
+          <div className="flex-1 grid place-items-center">
+            <p className="font-semibold text-secondary">No channels</p>
+          </div>
+        )}
       </div>
       <div className="flex-1 flex flex-col overflow-hidden">
         <h4 className="text-lg font-bold mb-4">Direct messages</h4>
-        {dms && dms.length ? (
-          <ul className="flex-1 overflow-auto">{dms.map(renderListItem)}</ul>
+        {dms?.length ? (
+          <ChatsList
+            spaceId={spaceId}
+            items={dms.map(formatToDmsListItem)}
+            className="overflow-auto"
+          />
         ) : (
           <div className="flex-1 grid place-items-center">
             <p className="font-semibold text-secondary">No channels</p>

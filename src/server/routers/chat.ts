@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { ChatTypeName } from '@prisma/client';
 
 import { router, protectedProcedure, membershipMiddleware } from '../trpc';
+import { getChatType } from '../../utils/chatType';
 
 export default router({
   getById: protectedProcedure
@@ -41,19 +42,12 @@ export default router({
   getDms: protectedProcedure
     .input(z.object({ spaceId: z.number() }))
     .use(membershipMiddleware)
-    .query(async ({ ctx: { prisma, membership } }) => {
-      const chatType = await prisma.chatType.findUnique({
-        where: { name: ChatTypeName.DirectMessage },
-      });
-      if (!chatType) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Chat type not found.',
-        });
-      }
+    .query(async ({ ctx: { prisma, membership }, input: { spaceId } }) => {
+      const chatType = await getChatType(prisma, ChatTypeName.DirectMessage);
 
       const dms = await prisma.chat.findMany({
         where: {
+          spaceId,
           chatTypeId: chatType.id,
           members: { some: { memberId: membership.id } },
         },
@@ -78,6 +72,26 @@ export default router({
       });
 
       return dms;
+    }),
+  getChannels: protectedProcedure
+    .input(z.object({ spaceId: z.number() }))
+    .use(membershipMiddleware)
+    .query(async ({ ctx: { prisma, membership }, input: { spaceId } }) => {
+      const chatType = await getChatType(prisma, ChatTypeName.Channel);
+
+      const channels = await prisma.chat.findMany({
+        where: {
+          spaceId,
+          chatTypeId: chatType.id,
+          members: { some: { memberId: membership.id } },
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      });
+
+      return channels;
     }),
   getOrCreateDmByMemberId: protectedProcedure
     .input(z.object({ spaceId: z.number(), memberId: z.number() }))
@@ -107,16 +121,7 @@ export default router({
           });
         }
 
-        const chatType = await prisma.chatType.findUnique({
-          where: { name: ChatTypeName.DirectMessage },
-          select: { id: true },
-        });
-        if (!chatType) {
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'Chat type not found.',
-          });
-        }
+        const chatType = await getChatType(prisma, ChatTypeName.DirectMessage);
 
         const chat = await prisma.chat.create({
           data: { chatTypeId: chatType.id, spaceId },
@@ -145,15 +150,7 @@ export default router({
     .use(membershipMiddleware)
     .mutation(
       async ({ ctx: { prisma, membership }, input: { spaceId, name } }) => {
-        const chatType = await prisma.chatType.findUnique({
-          where: { name: ChatTypeName.Channel },
-        });
-        if (!chatType) {
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'Chat type not found.',
-          });
-        }
+        const chatType = await getChatType(prisma, ChatTypeName.Channel);
 
         const channel = await prisma.chat.create({
           data: { spaceId, name, chatTypeId: chatType.id },
