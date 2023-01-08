@@ -1,11 +1,11 @@
 import { type FC, type HTMLProps, useState } from 'react';
-import { MdAdd } from 'react-icons/md';
+import { MdSearch } from 'react-icons/md';
 
-import CreateChannelModal from './createChannelModal';
+import FindChannelModal from './findChannelModal';
 
 type Props = Omit<HTMLProps<HTMLButtonElement>, 'type'>;
 
-const CreateChannelButton: FC<Props> = ({ className, onClick, ...rest }) => {
+const FindChannelButton: FC<Props> = ({ className, onClick, ...rest }) => {
   const [open, setOpen] = useState(false);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
@@ -20,11 +20,11 @@ const CreateChannelButton: FC<Props> = ({ className, onClick, ...rest }) => {
         className={`btn btn-square btn-sm${className ? ` ${className}` : ''}`}
         onClick={handleClick}
       >
-        <MdAdd className="text-2xl" />
+        <MdSearch className="text-2xl" />
       </button>
-      <CreateChannelModal open={open} onClose={() => setOpen(false)} />
+      <FindChannelModal open={open} onClose={() => setOpen(false)} />
     </>
   );
 };
 
-export default CreateChannelButton;
+export default FindChannelButton;

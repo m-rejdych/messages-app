@@ -1,11 +1,11 @@
 import type { FC } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 
 import useAuthError from '../../hooks/useAuthError';
 import CreateChannelButton from '../../components/chat/createChannelButton';
 import ChatsList, { type ListItem } from '../../components/chat/list';
+import FindChannelButton from '../../components/chat/findChannelButton';
 import { trpc, type RouterOutputs } from '../../utils/trpc';
 import type { MemberInfo } from '../../hooks/useSpaceSubscription';
 
@@ -85,7 +85,10 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="flex items-center justify-between mb-4">
           <h4 className="text-lg font-bold">Channels</h4>
-          <CreateChannelButton />
+          <div className="flex items-center">
+            <FindChannelButton className="mr-3" />
+            <CreateChannelButton />
+          </div>
         </div>
         {channels?.length ? (
           <ChatsList
