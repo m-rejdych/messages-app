@@ -11,6 +11,7 @@ export const FIELDS: Field<keyof typeof DEFAULTS>[] = [
     inputProps: {
       label: 'Name',
       placeholder: 'space name',
+      type: 'text',
     },
     registerOptions: {
       setValueAs: (value: string) => value.trim(),
@@ -28,6 +29,7 @@ export const FIELDS: Field<keyof typeof DEFAULTS>[] = [
     name: 'isPrivate',
     inputProps: {
       label: 'Private',
+      type: 'checkbox',
     },
   },
 ];

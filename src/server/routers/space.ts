@@ -80,7 +80,7 @@ export default router({
 
       return space;
     }),
-  searchPublicByName: protectedProcedure
+  findPublicByName: protectedProcedure
     .input(z.string().trim().min(1, 'Space name can not be empty.'))
     .query(async ({ ctx: { prisma }, input }) => {
       const spaces = await prisma.space.findMany({

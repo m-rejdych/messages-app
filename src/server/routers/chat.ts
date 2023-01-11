@@ -137,10 +137,40 @@ export default router({
         return chat;
       },
     ),
+  findPublicChannelByName: protectedProcedure
+    .input(
+      z.object({
+        spaceId: z.number(),
+        name: z
+          .string()
+          .trim()
+          .min(1, 'Channel name has to be at least 1 character long.'),
+      }),
+    )
+    .use(membershipMiddleware)
+    .query(async ({ ctx: { prisma }, input: { spaceId, name } }) => {
+      const chatType = await getChatType(prisma, ChatTypeName.Channel);
+
+      const channels = await prisma.chat.findMany({
+        where: {
+          spaceId,
+          isPrivate: false,
+          chatTypeId: chatType.id,
+          name: { contains: name, mode: 'insensitive' },
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      });
+
+      return channels;
+    }),
   createChannel: protectedProcedure
     .input(
       z.object({
         spaceId: z.number(),
+        isPrivate: z.boolean().optional(),
         name: z
           .string()
           .trim()
@@ -149,11 +179,11 @@ export default router({
     )
     .use(membershipMiddleware)
     .mutation(
-      async ({ ctx: { prisma, membership }, input: { spaceId, name } }) => {
+      async ({ ctx: { prisma, membership }, input: { spaceId, ...rest } }) => {
         const chatType = await getChatType(prisma, ChatTypeName.Channel);
 
         const channel = await prisma.chat.create({
-          data: { spaceId, name, chatTypeId: chatType.id },
+          data: { spaceId, chatTypeId: chatType.id, ...rest },
         });
         await prisma.chatsOnMemberships.create({
           data: { chatId: channel.id, memberId: membership.id },

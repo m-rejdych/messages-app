@@ -19,7 +19,7 @@ const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
   const [debouncedValue, setDebouncedValue] = useDebounce(value, 1000);
   const { data: session } = useSession();
   const { data, isFetched, isRefetching } =
-    trpc.space.searchPublicByName.useQuery(debouncedValue, {
+    trpc.space.findPublicByName.useQuery(debouncedValue, {
       enabled: !!debouncedValue,
       keepPreviousData: true,
     });

@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 
 import Modal from '../common/modal';
 import Input from '../common/input';
+import Checkbox from '../common/checkbox';
 import useAuthError from '../../hooks/useAuthError';
 import { trpc } from '../../utils/trpc';
 import type { Field } from '../../types/form';
@@ -13,26 +14,36 @@ interface Props {
   onClose: () => void;
 }
 
-const DEFAULTS = { name: '' };
+const DEFAULTS = { name: '', isPrivate: false };
 
-const FIELD: Field<keyof typeof DEFAULTS> = {
-  name: 'name',
-  inputProps: {
-    placeholder: 'channel name',
-    label: 'Name',
-  },
-  registerOptions: {
-    setValueAs: (value: string) => value.trim(),
-    required: {
-      value: true,
-      message: 'Channel name is required.',
+const FIELDS: Field<keyof typeof DEFAULTS>[] = [
+  {
+    name: 'name',
+    inputProps: {
+      placeholder: 'channel name',
+      label: 'Name',
+      type: 'text',
     },
-    minLength: {
-      value: 2,
-      message: 'Channel name have to be at least 2 characters long.',
+    registerOptions: {
+      setValueAs: (value: string) => value.trim(),
+      required: {
+        value: true,
+        message: 'Channel name is required.',
+      },
+      minLength: {
+        value: 2,
+        message: 'Channel name have to be at least 2 characters long.',
+      },
     },
   },
-} as const;
+  {
+    name: 'isPrivate',
+    inputProps: {
+      label: 'Private',
+      type: 'checkbox',
+    },
+  },
+];
 
 const CreateChannelModal: FC<Props> = ({ onClose, ...rest }) => {
   const {
@@ -62,11 +73,26 @@ const CreateChannelModal: FC<Props> = ({ onClose, ...rest }) => {
   return (
     <Modal {...rest} onClose={onClose} onExited={reset} title="Create channel">
       <form noValidate onSubmit={handleSubmit(handleSubmitForm)}>
-        <Input
-          error={errors[FIELD.name]?.message}
-          {...FIELD.inputProps}
-          {...register(FIELD.name, FIELD.registerOptions)}
-        />
+        {FIELDS.map(({ name, inputProps, registerOptions }) =>
+          typeof DEFAULTS[name] === 'string' ? (
+            <Input
+              key={name}
+              error={errors[name]?.message}
+              {...inputProps}
+              {...register(name, registerOptions)}
+            />
+          ) : (
+            <Checkbox
+              key={name}
+              className="checkbox-secondary"
+              formControlProps={{
+                className: 'mt-2',
+              }}
+              {...inputProps}
+              {...register(name, registerOptions)}
+            />
+          ),
+        )}
         <button className="btn btn-primary mt-6" type="submit">
           Create
         </button>

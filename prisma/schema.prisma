@@ -50,6 +50,7 @@ model Role {
 model Chat {
   id Int @id @default(autoincrement())
   name String? @unique
+  isPrivate Boolean @default(false)
   messages Message[]
   members ChatsOnMemberships[]
   spaceId Int
