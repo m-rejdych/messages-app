@@ -62,9 +62,9 @@ const Chat: NextPageWithLayout = () => {
   if (error) {
     return (
       <div className="h-full grid place-items-center">
-        <h1 className="text-4xl">
+        <h1 className="text-4xl text-secondary">
           {error.shape?.data.httpStatus === 404
-            ? 'Space not found'
+            ? 'Chat not found'
             : error.message}
         </h1>
       </div>
@@ -99,7 +99,7 @@ const Chat: NextPageWithLayout = () => {
     }
   };
 
-  const isMyMessage = (authorId: number): boolean =>
+  const isMyMessage = (authorId?: number): boolean =>
     authorId === session.user.id;
 
   return (
@@ -110,31 +110,25 @@ const Chat: NextPageWithLayout = () => {
           className="h-4/5 p-4 border-b border-neutral overflow-auto"
         >
           {data.messages.length ? (
-            data.messages.map(
-              ({
-                id,
-                content,
-                author: {
-                  user: { id: authorId, username },
-                },
-              }) => (
+            data.messages.map(({ id, content, author }) => (
+              <div
+                key={id}
+                className={`chat ${
+                  isMyMessage(author?.user.id) ? 'chat-end' : 'chat-start'
+                }`}
+              >
+                <div className="chat-header opacity-70">
+                  {author?.user.username ?? 'unknown user'}
+                </div>
                 <div
-                  key={id}
-                  className={`chat ${
-                    isMyMessage(authorId) ? 'chat-end' : 'chat-start'
+                  className={`chat-bubble${
+                    isMyMessage(author?.id) ? ' chat-bubble-secondary' : ''
                   }`}
                 >
-                  <div className="chat-header opacity-70">{username}</div>
-                  <div
-                    className={`chat-bubble${
-                      isMyMessage(authorId) ? ' chat-bubble-secondary' : ''
-                    }`}
-                  >
-                    {content}
-                  </div>
+                  {content}
                 </div>
-              ),
-            )
+              </div>
+            ))
           ) : (
             <div className="grid place-items-center h-full">
               <h1 className="text-2xl text-secondary">

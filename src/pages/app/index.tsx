@@ -37,7 +37,7 @@ const App: NextPageWithLayout = () => {
       </div>
       <div className="divider" />
       <SpacesList
-        action={{ text: 'Go!', navigate: true }}
+        action={{ text: 'Go!', navigate: { prefix: '/app/' } }}
         spaces={data}
         className="flex-1 overflow-auto"
       />

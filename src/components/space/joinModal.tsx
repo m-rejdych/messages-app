@@ -4,10 +4,11 @@ import { useSession } from 'next-auth/react';
 
 import Modal from '../common/modal';
 import Input from '../common/input';
-import SpacesList, { type Space, type Action } from './list';
+import SpacesList from './list';
 import useDebounce from '../../hooks/useDebounce';
 import useAuthError from '../../hooks/useAuthError';
 import { trpc } from '../../utils/trpc';
+import type { Action } from '../common/cardsList';
 
 interface Props {
   open: boolean;
@@ -15,6 +16,7 @@ interface Props {
 }
 
 const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
+  const onError = useAuthError();
   const [value, setValue] = useState('');
   const [debouncedValue, setDebouncedValue] = useDebounce(value, 1000);
   const { data: session } = useSession();
@@ -22,8 +24,8 @@ const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
     trpc.space.findPublicByName.useQuery(debouncedValue, {
       enabled: !!debouncedValue,
       keepPreviousData: true,
+      onError,
     });
-  const onError = useAuthError();
   const joinMutation = trpc.space.join.useMutation();
   const router = useRouter();
 
@@ -40,10 +42,13 @@ const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
     }
   };
 
-  const getAction = ({ members }: Space): Action | undefined => {
+  const getAction = (id: number): Action | undefined => {
     if (!session?.user) return undefined;
 
-    if (members.some(({ userId }) => userId === session.user.id)) {
+    const space = data?.find((space) => space.id === id);
+    if (!space) return undefined;
+
+    if (space.members.some(({ userId }) => userId === session.user.id)) {
       return {
         text: 'You are a member',
         inactive: true,
@@ -72,8 +77,8 @@ const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
     >
       <Input onChange={handleChange} label="Space name" placeholder="name" />
       <div className="divider" />
-      <h2 className="text-md font-bold">Spaces</h2>
-      {data && debouncedValue && data.length ? (
+      <h2 className="text-lg font-bold">Spaces</h2>
+      {debouncedValue && data?.length ? (
         <SpacesList
           action={getAction}
           spaces={data}
@@ -81,7 +86,7 @@ const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
         />
       ) : (
         <div className="h-32 flex flex-auto items-center justify-center">
-          <h3 className="text-md">
+          <h3 className="text-lg">
             {isFetched || isRefetching
               ? 'No spaces found'
               : 'Start typing to look for spaces'}

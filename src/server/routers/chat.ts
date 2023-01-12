@@ -9,36 +9,52 @@ export default router({
   getById: protectedProcedure
     .input(z.object({ spaceId: z.number(), chatId: z.number() }))
     .use(membershipMiddleware)
-    .query(async ({ ctx: { prisma }, input: { spaceId, chatId } }) => {
-      const chat = await prisma.chat.findUnique({
-        where: { id: chatId },
-        include: {
-          messages: {
-            select: {
-              id: true,
-              content: true,
-              author: {
-                select: {
-                  id: true,
-                  user: { select: { id: true, username: true } },
+    .query(
+      async ({ ctx: { prisma, membership }, input: { spaceId, chatId } }) => {
+        const chat = await prisma.chat.findUnique({
+          where: { id: chatId },
+          include: {
+            messages: {
+              select: {
+                id: true,
+                content: true,
+                author: {
+                  select: {
+                    id: true,
+                    user: { select: { id: true, username: true } },
+                  },
                 },
               },
             },
+            members: {
+              select: {
+                memberId: true,
+              },
+            },
           },
-        },
-      });
-      if (!chat) {
-        throw new TRPCError({ code: 'NOT_FOUND', message: 'Chat not found.' });
-      }
-      if (chat.spaceId !== spaceId) {
-        throw new TRPCError({
-          code: 'BAD_REQUEST',
-          message: 'This chat is not a part of the space.',
         });
-      }
+        if (!chat) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Chat not found.',
+          });
+        }
+        if (chat.spaceId !== spaceId) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'This chat is not a part of the space.',
+          });
+        }
+        if (!chat.members.some(({ memberId }) => memberId === membership.id)) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'You are not a member of this chat.',
+          });
+        }
 
-      return chat;
-    }),
+        return chat;
+      },
+    ),
   getDms: protectedProcedure
     .input(z.object({ spaceId: z.number() }))
     .use(membershipMiddleware)
@@ -161,6 +177,15 @@ export default router({
         select: {
           id: true,
           name: true,
+          members: {
+            select: {
+              member: {
+                select: {
+                  userId: true,
+                },
+              },
+            },
+          },
         },
       });
 

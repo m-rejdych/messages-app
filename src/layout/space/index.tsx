@@ -32,7 +32,7 @@ const SpaceLayout: FC<Props> = ({ children }) => {
   if (error) {
     return (
       <div className="h-full grid place-items-center">
-        <h1 className="text-4xl">
+        <h1 className="text-4xl text-secondary">
           {error.shape?.data.httpStatus === 404
             ? 'Space not found'
             : error.message}
