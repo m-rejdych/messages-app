@@ -14,10 +14,6 @@ const useDebounce = <T>(
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
     const timeout = setTimeout(() => {
       setDebouncedValue(value);
       timeoutRef.current = null;

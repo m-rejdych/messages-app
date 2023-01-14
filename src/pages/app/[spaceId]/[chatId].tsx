@@ -49,7 +49,7 @@ const Chat: NextPageWithLayout = () => {
       messagesWindowRef.current.scrollHeight;
   }, [data?.messages.length]);
 
-  if (!session?.user) return null;
+  if (!session) return null;
 
   if (isInitialLoading) {
     return (

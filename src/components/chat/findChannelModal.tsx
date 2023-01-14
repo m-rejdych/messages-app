@@ -5,11 +5,11 @@ import { useSession } from 'next-auth/react';
 import Modal from '../common/modal';
 import Input from '../common/input';
 import CardsList from '../common/cardsList';
+import ErrorMessage from '../common/errorMessage';
 import useDebounce from '../../hooks/useDebounce';
 import useAuthError from '../../hooks/useAuthError';
-import { trpc } from '../../utils/trpc';
+import { trpc, type RouterOutputs } from '../../utils/trpc';
 import type { Action } from '../common/cardsList';
-import type { RouterOutputs } from '../../utils/trpc';
 
 interface Props {
   open: boolean;
@@ -34,11 +34,11 @@ const FindChannelModal: FC<Props> = ({ onClose, ...rest }) => {
   const { data, isFetched, isRefetching } =
     trpc.chat.findPublicChannelByName.useQuery(
       {
-        name: debouncedValue,
+        name: debouncedValue.trim(),
         spaceId,
       },
       {
-        enabled: !!debouncedValue,
+        enabled: !!debouncedValue.trim(),
         keepPreviousData: true,
         onError,
       },
@@ -61,7 +61,7 @@ const FindChannelModal: FC<Props> = ({ onClose, ...rest }) => {
     );
 
   const getAction = (id: number): Action | undefined => {
-    if (!session?.user.id) return undefined;
+    if (!session) return undefined;
 
     const channel = getChannel(id);
     if (!channel) return undefined;
@@ -123,13 +123,11 @@ const FindChannelModal: FC<Props> = ({ onClose, ...rest }) => {
           }))}
         />
       ) : (
-        <div className="h-32 flex flex-auto items-center justify-center">
-          <h3 className="text-lg">
-            {isFetched || isRefetching
-              ? 'No spaces found'
-              : 'Start typing to look for spaces'}
-          </h3>
-        </div>
+        <ErrorMessage>
+          {isFetched || isRefetching
+            ? 'No channels found'
+            : 'Start typing to look for channels'}
+        </ErrorMessage>
       )}
     </Modal>
   );

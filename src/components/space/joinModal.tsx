@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import Modal from '../common/modal';
 import Input from '../common/input';
 import SpacesList from './list';
+import ErrorMessage from '../common/errorMessage';
 import useDebounce from '../../hooks/useDebounce';
 import useAuthError from '../../hooks/useAuthError';
 import { trpc } from '../../utils/trpc';
@@ -21,8 +22,8 @@ const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
   const [debouncedValue, setDebouncedValue] = useDebounce(value, 1000);
   const { data: session } = useSession();
   const { data, isFetched, isRefetching } =
-    trpc.space.findPublicByName.useQuery(debouncedValue, {
-      enabled: !!debouncedValue,
+    trpc.space.findPublicByName.useQuery(debouncedValue.trim(), {
+      enabled: !!debouncedValue.trim(),
       keepPreviousData: true,
       onError,
     });
@@ -43,7 +44,7 @@ const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
   };
 
   const getAction = (id: number): Action | undefined => {
-    if (!session?.user) return undefined;
+    if (!session) return undefined;
 
     const space = data?.find((space) => space.id === id);
     if (!space) return undefined;
@@ -85,13 +86,11 @@ const JoinSpaceModal: FC<Props> = ({ open, onClose }) => {
           className="overflow-auto"
         />
       ) : (
-        <div className="h-32 flex flex-auto items-center justify-center">
-          <h3 className="text-lg">
-            {isFetched || isRefetching
-              ? 'No spaces found'
-              : 'Start typing to look for spaces'}
-          </h3>
-        </div>
+        <ErrorMessage>
+          {isFetched || isRefetching
+            ? 'No spaces found'
+            : 'Start typing to look for spaces'}
+        </ErrorMessage>
       )}
     </Modal>
   );

@@ -6,6 +6,7 @@ import useAuthError from '../../hooks/useAuthError';
 import CreateChannelButton from '../../components/chat/createChannelButton';
 import ChatsList, { type ListItem } from '../../components/chat/list';
 import FindChannelButton from '../../components/chat/findChannelButton';
+import FindDmButton from '../../components/chat/findDmButton';
 import { trpc, type RouterOutputs } from '../../utils/trpc';
 import type { MemberInfo } from '../../hooks/useSpaceSubscription';
 
@@ -37,7 +38,7 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
     { onError },
   );
 
-  if (!session?.user) return null;
+  if (!session) return null;
 
   const formatToDmsListItem = ({ id, members }: Dm): ListItem => {
     const otherMember = members.find(
@@ -103,7 +104,10 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
         )}
       </div>
       <div className="flex-1 flex flex-col overflow-hidden">
-        <h4 className="text-lg font-bold mb-4">Direct messages</h4>
+        <div className="flex items-center justify-between mb-4">
+          <h4 className="text-lg font-bold">Direct messages</h4>
+          <FindDmButton />
+        </div>
         {dms?.length ? (
           <ChatsList
             spaceId={spaceId}
@@ -112,7 +116,7 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
           />
         ) : (
           <div className="flex-1 grid place-items-center">
-            <p className="font-semibold text-secondary">No channels</p>
+            <p className="font-semibold text-secondary">No dms</p>
           </div>
         )}
       </div>
