@@ -9,16 +9,25 @@ import useDebounce from '../../hooks/useDebounce';
 import useAuthError from '../../hooks/useAuthError';
 import { trpc } from '../../utils/trpc';
 import type { Action } from '../common/cardsList';
+import type { RouterOutputs } from '../../utils/trpc';
 
 interface Props {
   open: boolean;
   onClose: () => void;
 }
 
-const FindChannelModal: FC<Props> = (props) => {
+type Channel = RouterOutputs['chat']['findPublicChannelByName'] extends Array<
+  infer T
+>
+  ? T
+  : never;
+
+const FindChannelModal: FC<Props> = ({ onClose, ...rest }) => {
   const router = useRouter();
   const spaceId = parseInt(router.query.spaceId as string, 10);
   const onError = useAuthError();
+  const joinPublicChannelMutation = trpc.chat.joinPublicChannel.useMutation();
+  const utils = trpc.useContext();
   const [value, setValue] = useState('');
   const [debouncedValue, setDebouncedValue] = useDebounce(value, 1000);
   const { data: session } = useSession();
@@ -40,19 +49,27 @@ const FindChannelModal: FC<Props> = (props) => {
     setDebouncedValue('');
   };
 
+  const getChannel = (channelId: number): Channel | undefined => {
+    if (!data) return undefined;
+
+    return data.find(({ id }) => id === channelId);
+  };
+
+  const isChannelMember = (channel: Channel): boolean =>
+    channel.members.some(
+      ({ member: { userId } }) => userId === session?.user.id,
+    );
+
   const getAction = (id: number): Action | undefined => {
     if (!session?.user.id) return undefined;
 
-    const channel = data?.find((channel) => channel.id === id);
+    const channel = getChannel(id);
     if (!channel) return undefined;
 
-    if (
-      channel.members.some(
-        ({ member: { userId } }) => userId === session.user.id,
-      )
-    ) {
+    if (isChannelMember(channel)) {
       return {
         text: 'Go',
+        onAction: onClose,
         navigate: {
           prefix: `/app/${spaceId}/`,
         },
@@ -61,15 +78,37 @@ const FindChannelModal: FC<Props> = (props) => {
 
     return {
       text: 'Join',
+      loading: joinPublicChannelMutation.isLoading,
       onAction: async (id: number) => {
-        // join mutation
-        await router.push(`/app/${spaceId}/${id}`);
+        try {
+          await joinPublicChannelMutation.mutateAsync({
+            spaceId,
+            channelId: id,
+          });
+          await utils.chat.getChannels.invalidate({ spaceId });
+          await router.push(`/app/${spaceId}/${id}`);
+          onClose();
+        } catch (error) {
+          onError(error as Parameters<typeof onError>[0]);
+        }
       },
     };
   };
 
+  const getSublabel = (id: number): string => {
+    const channel = getChannel(id);
+    if (!channel) return '';
+
+    return isChannelMember(channel) ? 'You are a member' : '';
+  };
+
   return (
-    <Modal {...props} title="Find channel" onExited={handleExited}>
+    <Modal
+      {...rest}
+      title="Find channel"
+      onClose={onClose}
+      onExited={handleExited}
+    >
       <Input value={value} onChange={(e) => setValue(e.target.value)} />
       <div className="divider" />
       <h2 className="text-lg font-bold">Channels</h2>
@@ -80,6 +119,7 @@ const FindChannelModal: FC<Props> = (props) => {
           items={data.map(({ id, name }) => ({
             id,
             label: name ?? 'Unnamed channel',
+            sublabel: getSublabel(id),
           }))}
         />
       ) : (

@@ -9,9 +9,9 @@ import FindChannelButton from '../../components/chat/findChannelButton';
 import { trpc, type RouterOutputs } from '../../utils/trpc';
 import type { MemberInfo } from '../../hooks/useSpaceSubscription';
 
-type Dm = RouterOutputs['chat']['getDms'] extends Array<infer R> ? R : never;
-type Channel = RouterOutputs['chat']['getChannels'] extends Array<infer R>
-  ? R
+type Dm = RouterOutputs['chat']['getDms'] extends Array<infer T> ? T : never;
+type Channel = RouterOutputs['chat']['getChannels'] extends Array<infer T>
+  ? T
   : never;
 
 interface Props {

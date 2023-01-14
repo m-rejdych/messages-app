@@ -44,7 +44,7 @@ const CardsList: FC<Props> = ({
           {renderLabel?.(label) ?? <h2 className="card-title">{label}</h2>}
           {sublabel &&
             (renderSublabel?.(sublabel) ?? (
-              <p className="text-secondary text-lg">{sublabel}</p>
+              <p className="text-secondary text-sm">{sublabel}</p>
             ))}
           {resolvedAction && (
             <div className="card-actions justify-end">
@@ -57,6 +57,7 @@ const CardsList: FC<Props> = ({
                   href={`${resolvedAction.navigate.prefix}${id}${
                     resolvedAction.navigate.suffix ?? ''
                   }`}
+                  onClick={resolvedAction.onAction}
                   className="btn btn-primary btn-outline"
                 >
                   {resolvedAction.text}
