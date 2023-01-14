@@ -52,7 +52,9 @@ const CreateChannelModal: FC<Props> = ({ onClose, ...rest }) => {
     reset,
     formState: { errors },
   } = useForm({ defaultValues: DEFAULTS });
+  const utils = trpc.useContext();
   const router = useRouter();
+  const spaceId = parseInt(router.query.spaceId as string, 10);
   const onError = useAuthError();
   const createChannelMutation = trpc.chat.createChannel.useMutation();
 
@@ -60,10 +62,12 @@ const CreateChannelModal: FC<Props> = ({ onClose, ...rest }) => {
     fields,
   ): Promise<void> => {
     try {
-      await createChannelMutation.mutateAsync({
+      const { id } = await createChannelMutation.mutateAsync({
         ...fields,
-        spaceId: parseInt(router.query.spaceId as string, 10),
+        spaceId,
       });
+      await utils.chat.getChannels.invalidate({ spaceId });
+      await router.push(`/app/${spaceId}/${id}`);
       onClose();
     } catch (error) {
       onError(error as Parameters<typeof onError>[0]);
