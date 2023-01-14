@@ -217,4 +217,57 @@ export default router({
         return channel;
       },
     ),
+  joinPublicChannel: protectedProcedure
+    .input(z.object({ spaceId: z.number(), channelId: z.number() }))
+    .use(membershipMiddleware)
+    .mutation(
+      async ({
+        ctx: { prisma, membership },
+        input: { spaceId, channelId },
+      }) => {
+        const chatType = await getChatType(prisma, ChatTypeName.Channel);
+
+        const channel = await prisma.chat.findFirst({
+          where: { spaceId, id: channelId },
+          select: {
+            id: true,
+            isPrivate: true,
+            chatTypeId: true,
+            members: { select: { memberId: true } },
+          },
+        });
+        if (!channel) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Channel not found.',
+          });
+        }
+        if (channel.chatTypeId !== chatType.id) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'This chat is not a channel.',
+          });
+        }
+        if (
+          channel.members.some(({ memberId }) => memberId === membership.id)
+        ) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'You are already a member of this channel.',
+          });
+        }
+        if (channel.isPrivate) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: 'This channel is private.',
+          });
+        }
+
+        await prisma.chatsOnMemberships.create({
+          data: { memberId: membership.id, chatId: channel.id },
+        });
+
+        return channel;
+      },
+    ),
 });
