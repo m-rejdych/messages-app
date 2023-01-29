@@ -6,12 +6,14 @@ import HashLoader from 'react-spinners/HashLoader';
 import AppLayout from '../../../layout/app';
 import SpaceLayout from '../../../layout/space';
 import useAuthError from '../../../hooks/useAuthError';
-import useChatSubscription, {
-  type Message,
-} from '../../../hooks/useChatSubscription';
+import useChatSubscription from '../../../hooks/useChatSubscription';
 import { getAuthedServerSideProps } from '../../../utils/session';
-import { trpc } from '../../../utils/trpc';
+import { trpc, type RouterOutputs } from '../../../utils/trpc';
 import type { NextPageWithLayout } from '../../../types/page';
+
+const TAKE = 20 as const;
+
+type Message = RouterOutputs['chat']['getById']['chat']['messages'][number];
 
 const Chat: NextPageWithLayout = () => {
   const [value, setValue] = useState('');
@@ -21,35 +23,87 @@ const Chat: NextPageWithLayout = () => {
   const chatId = parseInt(query.chatId as string, 10);
   const utils = trpc.useContext();
   const messagesWindowRef = useRef<HTMLDivElement | null>(null);
+  const lastMessageRef = useRef<HTMLDivElement | null>(null);
   const { data: session } = useSession();
-  const { data, isInitialLoading, error } = trpc.chat.getById.useQuery(
+  const {
+    data,
+    isInitialLoading,
+    error,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetched,
+    fetchNextPage,
+  } = trpc.chat.getById.useInfiniteQuery(
     {
       chatId,
       spaceId,
+      take: TAKE,
     },
     {
+      getNextPageParam: (page) => page.cursor,
+      keepPreviousData: true,
       onError,
     },
   );
   const sendMessageMutation = trpc.message.send.useMutation();
 
+  const moveToBottom = (): void => {
+    if (!messagesWindowRef.current || !isFetched) return;
+
+    messagesWindowRef.current.scrollTop =
+      messagesWindowRef.current.scrollHeight;
+  };
+
   const addMessage = (msg: Message): void => {
-    utils.chat.getById.setData(
-      { chatId, spaceId },
-      (prev) => prev && { ...prev, messages: [...prev.messages, msg] },
+    utils.chat.getById.setInfiniteData(
+      { chatId, spaceId, take: TAKE },
+      (prev) =>
+        prev && {
+          ...prev,
+          pages: prev.pages.map((page, index) =>
+            index === 0
+              ? {
+                  ...page,
+                  chat: {
+                    ...page.chat,
+                    messages: [msg, ...page.chat.messages],
+                  },
+                }
+              : page,
+          ),
+        },
     );
+
+    setTimeout(moveToBottom, 0);
   };
 
   const { socketId } = useChatSubscription(spaceId, chatId, addMessage);
 
-  useEffect(() => {
-    if (!messagesWindowRef.current) return;
+  useEffect(moveToBottom, [isFetched]);
 
-    messagesWindowRef.current.scrollTop =
-      messagesWindowRef.current.scrollHeight;
-  }, [data?.messages.length]);
+  useEffect(() => {
+    if (!lastMessageRef.current || !hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(([entry], observer) => {
+      if (!entry.isIntersecting) return;
+
+      fetchNextPage();
+      observer.unobserve(entry.target);
+    });
+    observer.observe(lastMessageRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasNextPage, isFetchingNextPage]);
 
   if (!session) return null;
+
+  const messages =
+    data?.pages.reduce<Message[]>(
+      (acc, { chat: { messages } }) => [...acc, ...messages],
+      [],
+    ) ?? [];
 
   if (isInitialLoading) {
     return (
@@ -107,11 +161,12 @@ const Chat: NextPageWithLayout = () => {
       <div className="h-full border rounded-md border-neutral">
         <div
           ref={messagesWindowRef}
-          className="h-4/5 p-4 border-b border-neutral overflow-auto"
+          className="flex flex-col-reverse h-4/5 p-4 border-b border-neutral overflow-auto"
         >
-          {data.messages.length ? (
-            data.messages.map(({ id, content, author }) => (
+          {messages.length ? (
+            messages.map(({ id, content, author }, index) => (
               <div
+                ref={index === messages.length - 1 ? lastMessageRef : undefined}
                 key={id}
                 className={`chat ${
                   isMyMessage(author?.user.id) ? 'chat-end' : 'chat-start'

@@ -7,14 +7,31 @@ import { getChatType } from '../../utils/chatType';
 
 export default router({
   getById: protectedProcedure
-    .input(z.object({ spaceId: z.number(), chatId: z.number() }))
+    .input(
+      z.object({
+        spaceId: z.number(),
+        chatId: z.number(),
+        cursor: z.number().optional(),
+        take: z.number(),
+      }),
+    )
     .use(membershipMiddleware)
     .query(
-      async ({ ctx: { prisma, membership }, input: { spaceId, chatId } }) => {
+      async ({
+        ctx: { prisma, membership },
+        input: { spaceId, chatId, cursor, take },
+      }) => {
         const chat = await prisma.chat.findUnique({
           where: { id: chatId },
           include: {
             messages: {
+              cursor: cursor
+                ? {
+                    id: cursor,
+                  }
+                : undefined,
+              take: take,
+              skip: cursor ? 1 : 0,
               select: {
                 id: true,
                 content: true,
@@ -24,6 +41,9 @@ export default router({
                     user: { select: { id: true, username: true } },
                   },
                 },
+              },
+              orderBy: {
+                createdAt: 'desc',
               },
             },
             members: {
@@ -52,7 +72,13 @@ export default router({
           });
         }
 
-        return chat;
+        return {
+          chat,
+          cursor:
+            chat.messages.length && chat.messages.length >= take
+              ? chat.messages[chat.messages.length - 1].id
+              : undefined,
+        };
       },
     ),
   getDms: protectedProcedure
