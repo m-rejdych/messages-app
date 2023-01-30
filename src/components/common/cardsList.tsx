@@ -1,4 +1,4 @@
-import type { FC, HTMLProps, ReactNode } from 'react';
+import type { FC, HTMLProps, ReactNode, Ref } from 'react';
 import Link from 'next/link';
 
 interface ListItem {
@@ -23,6 +23,7 @@ interface Props extends Omit<HTMLProps<HTMLUListElement>, 'action'> {
   action?: Action | ((id: number) => Action | undefined);
   renderLabel?: (label: string) => ReactNode;
   renderSublabel?: (sublabel: string) => ReactNode;
+  lastItemRef?: Ref<HTMLLIElement> | null;
 }
 
 const CardsList: FC<Props> = ({
@@ -30,13 +31,19 @@ const CardsList: FC<Props> = ({
   action,
   renderLabel,
   renderSublabel,
+  lastItemRef,
   ...rest
 }) => {
-  const renderItem = ({ id, label, sublabel }: ListItem): ReactNode => {
+  const renderItem = (
+    { id, label, sublabel }: ListItem,
+    index: number,
+    self: ListItem[],
+  ): ReactNode => {
     const resolvedAction = typeof action === 'function' ? action(id) : action;
 
     return (
       <li
+        ref={index === self.length - 1 ? lastItemRef : undefined}
         key={id}
         className="card card-compact list-item w-full bg-base-100 shadow-xl [&:not(:last-child)]:mb-4"
       >

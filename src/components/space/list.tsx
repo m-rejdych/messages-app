@@ -1,5 +1,4 @@
-import type { FC, HTMLProps } from 'react';
-import Link from 'next/link';
+import type { FC, HTMLProps, Ref } from 'react';
 import { Prisma } from '@prisma/client';
 
 import CardsList from '../common/cardsList';
@@ -15,9 +14,10 @@ export type Space = Prisma.SpaceGetPayload<{
 interface Props extends Omit<HTMLProps<HTMLUListElement>, 'action'> {
   spaces: Space[];
   action?: Action | ((id: number) => Action | undefined);
+  lastItemRef?: Ref<HTMLLIElement> | null;
 }
 
-const SpacesList: FC<Props> = ({ spaces, action, ...rest }) => (
+const SpacesList: FC<Props> = ({ spaces, action, lastItemRef, ...rest }) => (
   <CardsList
     {...rest}
     items={spaces.map(({ id, name, creator }) => ({
@@ -31,6 +31,7 @@ const SpacesList: FC<Props> = ({ spaces, action, ...rest }) => (
         Created by <span className="font-bold">{username}</span>
       </p>
     )}
+    lastItemRef={lastItemRef}
   />
 );
 

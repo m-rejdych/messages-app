@@ -46,18 +46,40 @@ export default router({
 
       return space;
     }),
-  list: protectedProcedure.query(async ({ ctx: { prisma, userId } }) => {
-    const spaces = await prisma.space.findMany({
-      where: { OR: [{ creatorId: userId }, { members: { some: { userId } } }] },
-      include: {
-        creator: { select: { id: true, username: true } },
-        members: { select: { userId: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+  list: protectedProcedure
+    .input(
+      z.object({
+        take: z.number(),
+        cursor: z.number().optional(),
+      }),
+    )
+    .query(async ({ ctx: { prisma, userId }, input: { cursor, take } }) => {
+      const spaces = await prisma.space.findMany({
+        where: {
+          OR: [{ creatorId: userId }, { members: { some: { userId } } }],
+        },
+        include: {
+          creator: { select: { id: true, username: true } },
+          members: { select: { userId: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take,
+        skip: cursor ? 1 : 0,
+        cursor: cursor
+          ? {
+              id: cursor,
+            }
+          : undefined,
+      });
 
-    return spaces;
-  }),
+      return {
+        spaces,
+        cursor:
+          spaces.length && spaces.length >= take
+            ? spaces[spaces.length - 1].id
+            : undefined,
+      };
+    }),
   getById: protectedProcedure
     .input(z.object({ spaceId: z.number() }))
     .use(membershipMiddleware)
