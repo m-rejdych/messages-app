@@ -55,7 +55,7 @@ const FindDmModal: FC<Props> = ({ onClose, ...rest }) => {
   return (
     <Modal
       {...rest}
-      title="Find direct message"
+      title="Find space member"
       onClose={onClose}
       onExited={handleExited}
     >
@@ -77,8 +77,8 @@ const FindDmModal: FC<Props> = ({ onClose, ...rest }) => {
       ) : (
         <ErrorMessage>
           {isFetched || isRefetching
-            ? 'No direct messages found'
-            : 'Start typing to look for direct messages'}
+            ? 'No kembers found'
+            : 'Start typing to look for space members'}
         </ErrorMessage>
       )}
     </Modal>

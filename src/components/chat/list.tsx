@@ -29,7 +29,7 @@ const ChatsList: FC<Props> = ({ spaceId, items, className, ...rest }) => (
           <div
             className={`mr-3 avatar placeholder${isOnline ? ' online' : ''}`}
           >
-            <div className="bg-neutral-focus text-neutral-content rounded-full w-10">
+            <div className="bg-neutral-focus text-neutral-content rounded-full w-7">
               {text[0].toUpperCase()}
             </div>
           </div>

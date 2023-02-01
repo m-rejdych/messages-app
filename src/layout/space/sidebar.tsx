@@ -104,7 +104,7 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
         )}
       </div>
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between my-4">
           <h4 className="text-lg font-bold">Direct messages</h4>
           <FindDmButton />
         </div>
