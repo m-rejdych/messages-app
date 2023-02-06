@@ -24,11 +24,19 @@ export default router({
     )
     .mutation(
       async ({ input: { email, password, username }, ctx: { prisma } }) => {
-        const matchedUser = await prisma.user.findUnique({ where: { email } });
+        let matchedUser = await prisma.user.findUnique({ where: { email } });
         if (matchedUser) {
           throw new TRPCError({
             code: 'BAD_REQUEST',
             message: 'This email is already in use.',
+          });
+        }
+
+        matchedUser = await prisma.user.findUnique({ where: { username } });
+        if (matchedUser) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'This username is already in use.',
           });
         }
 
@@ -37,6 +45,10 @@ export default router({
         const user = await prisma.user.create({
           data: { email, password: hashedPassword, username },
           select: { email: true, id: true, username: true },
+        });
+
+        await prisma.profile.create({
+          data: { userId: user.id, displayName: username },
         });
 
         return user;
