@@ -59,7 +59,7 @@ export default router({
           OR: [{ creatorId: userId }, { members: { some: { userId } } }],
         },
         include: {
-          creator: { select: { id: true, username: true } },
+          creator: { select: { profile: { select: { displayName: true } } } },
           members: { select: { userId: true } },
         },
         orderBy: { createdAt: 'desc' },
@@ -86,15 +86,6 @@ export default router({
     .query(async ({ ctx: { prisma }, input: { spaceId } }) => {
       const space = await prisma.space.findUnique({
         where: { id: spaceId },
-        include: {
-          members: {
-            select: {
-              id: true,
-              role: true,
-              user: { select: { username: true, id: true } },
-            },
-          },
-        },
       });
       if (!space) {
         throw new TRPCError({ code: 'NOT_FOUND', message: 'Space not found.' });
@@ -113,8 +104,7 @@ export default router({
         include: {
           creator: {
             select: {
-              id: true,
-              username: true,
+              profile: { select: { displayName: true } },
             },
           },
           members: {

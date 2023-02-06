@@ -173,11 +173,11 @@ const Chat: NextPageWithLayout = () => {
                 }`}
               >
                 <div className="chat-header opacity-70">
-                  {author?.user.username ?? 'unknown user'}
+                  {author?.user.profile?.displayName ?? 'unknown user'}
                 </div>
                 <div
                   className={`chat-bubble${
-                    isMyMessage(author?.id) ? ' chat-bubble-secondary' : ''
+                    isMyMessage(author?.user.id) ? ' chat-bubble-secondary' : ''
                   }`}
                 >
                   {content}

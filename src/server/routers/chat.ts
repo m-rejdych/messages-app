@@ -38,7 +38,12 @@ export default router({
                 author: {
                   select: {
                     id: true,
-                    user: { select: { id: true, username: true } },
+                    user: {
+                      select: {
+                        id: true,
+                        profile: { select: { displayName: true } },
+                      },
+                    },
                   },
                 },
               },
@@ -103,7 +108,7 @@ export default router({
                   user: {
                     select: {
                       id: true,
-                      username: true,
+                      profile: { select: { displayName: true } },
                     },
                   },
                 },

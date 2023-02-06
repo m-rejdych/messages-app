@@ -15,23 +15,22 @@ export default router({
     )
     .use(membershipMiddleware)
     .query(
-      async ({
-        ctx: { prisma, userId },
-        input: { spaceId, username },
-      }) => {
+      async ({ ctx: { prisma, userId }, input: { spaceId, username } }) => {
         const members = await prisma.membership.findMany({
           where: {
             spaceId,
             user: {
               NOT: { id: userId },
-              username: { contains: username, mode: 'insensitive' },
+              profile: {
+                displayName: { contains: username, mode: 'insensitive' },
+              },
             },
           },
           select: {
             id: true,
             user: {
               select: {
-                username: true,
+                profile: { select: { displayName: true } },
               },
             },
           },

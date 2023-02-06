@@ -40,7 +40,7 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
 
   if (!session) return null;
 
-  const formatToDmsListItem = ({ id, members }: Dm): ListItem => {
+  const formatToDmsListItem = ({ id, members }: Dm): ListItem | null => {
     const otherMember = members.find(
       ({
         member: {
@@ -50,24 +50,19 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
     );
 
     if (!otherMember) {
-      return {
-        id,
-        text: '',
-        isOnline: false,
-        selected: false,
-      };
+      return null;
     }
 
     const {
       member: {
         id: memberId,
-        user: { username },
+        user: { profile },
       },
     } = otherMember;
 
     return {
       id,
-      text: username,
+      text: profile?.displayName ?? 'unknown user',
       isOnline: memberId in activeMembers,
       selected: id === currentChatId,
     };
@@ -111,7 +106,7 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
         {dms?.length ? (
           <ChatsList
             spaceId={spaceId}
-            items={dms.map(formatToDmsListItem)}
+            items={dms.map(formatToDmsListItem).filter(Boolean) as ListItem[]}
             className="overflow-auto"
           />
         ) : (

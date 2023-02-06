@@ -6,7 +6,7 @@ import type { Action } from '../common/cardsList';
 
 export type Space = Prisma.SpaceGetPayload<{
   include: {
-    creator: { select: { username: true; id: true } };
+    creator: { select: { profile: { select: { displayName: true } } } };
     members: { select: { userId: true } };
   };
 }>;
@@ -23,7 +23,7 @@ const SpacesList: FC<Props> = ({ spaces, action, lastItemRef, ...rest }) => (
     items={spaces.map(({ id, name, creator }) => ({
       id,
       label: name,
-      sublabel: creator?.username ?? 'unknown user',
+      sublabel: creator?.profile?.displayName ?? 'unknown user',
     }))}
     action={action}
     renderSublabel={(username) => (

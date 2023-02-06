@@ -65,9 +65,9 @@ const FindDmModal: FC<Props> = ({ onClose, ...rest }) => {
       {debouncedValue && data?.length ? (
         <CardsList
           className="mt-3"
-          items={data.map(({ id, user: { username } }) => ({
+          items={data.map(({ id, user: { profile } }) => ({
             id,
-            label: username,
+            label: profile?.displayName ?? 'unknown user',
           }))}
           action={{
             text: 'Go',

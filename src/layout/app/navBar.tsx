@@ -1,5 +1,6 @@
 import { type FC, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { signOut } from 'next-auth/react';
 import { MdMenu, MdNotifications } from 'react-icons/md';
 
@@ -8,6 +9,7 @@ import type { Item } from '../../types/common/menu';
 
 enum MenuItemValue {
   Logout,
+  Profile,
 }
 
 const MENU_ITEMS: Item<MenuItemValue>[] = [
@@ -15,9 +17,14 @@ const MENU_ITEMS: Item<MenuItemValue>[] = [
     label: 'Logout',
     value: MenuItemValue.Logout,
   },
+  {
+    label: 'Profile',
+    value: MenuItemValue.Profile,
+  },
 ];
 
 const NavBar: FC = () => {
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleMenuItemClick = async (value: MenuItemValue): Promise<void> => {
@@ -25,6 +32,10 @@ const NavBar: FC = () => {
       switch (value) {
         case MenuItemValue.Logout:
           await signOut();
+          break;
+        case MenuItemValue.Profile:
+          await router.push('/app/profile');
+          break;
         default:
           break;
       }
