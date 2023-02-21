@@ -8,7 +8,11 @@ import { getSession } from '../utils/session';
 export const createContext = async (opts: CreateNextContextOptions) => {
   const session = await getSession(opts);
 
-  return { prisma, pusher, userId: session?.user.id };
+  return {
+    prisma,
+    pusher,
+    userId: session?.user.id,
+  };
 };
 
 export type Context = inferAsyncReturnType<typeof createContext>;

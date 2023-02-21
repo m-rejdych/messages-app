@@ -63,6 +63,7 @@ const Sidebar: FC<Props> = ({ spaceName, activeMembers }) => {
     return {
       id,
       text: profile?.displayName ?? 'unknown user',
+      avatarUrl: profile?.avatarUrl ?? undefined,
       isOnline: memberId in activeMembers,
       selected: id === currentChatId,
     };

@@ -14,12 +14,12 @@ enum MenuItemValue {
 
 const MENU_ITEMS: Item<MenuItemValue>[] = [
   {
-    label: 'Logout',
-    value: MenuItemValue.Logout,
-  },
-  {
     label: 'Profile',
     value: MenuItemValue.Profile,
+  },
+  {
+    label: 'Logout',
+    value: MenuItemValue.Logout,
   },
 ];
 

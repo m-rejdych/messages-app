@@ -108,7 +108,9 @@ export default router({
                   user: {
                     select: {
                       id: true,
-                      profile: { select: { displayName: true } },
+                      profile: {
+                        select: { displayName: true, avatarUrl: true },
+                      },
                     },
                   },
                 },
