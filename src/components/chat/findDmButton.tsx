@@ -18,7 +18,9 @@ const FindDmButton: FC<Props> = ({ onClick, className, ...rest }) => {
       <button
         {...rest}
         onClick={handleClick}
-        className={`btn btn-square btn-sm${className ? ` ${className}` : ''}`}
+        className={`btn btn-square btn-sm${
+          className ? ` ${className}` : ''
+        }`}
       >
         <MdSearch className="text-2xl" />
       </button>

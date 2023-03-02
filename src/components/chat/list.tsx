@@ -20,8 +20,8 @@ const ChatsList: FC<Props> = ({ spaceId, items, className, ...rest }) => (
     {items.map(({ id, text, avatarUrl, selected, isOnline }) => (
       <li
         key={id}
-        className={`[&:not(:last-child)]:mb-2 px-2 py-1 rounded-md w-full text-left hover:bg-neutral${
-          selected ? ' bg-neutral' : ''
+        className={`[&:not(:last-child)]:mb-2 px-2 py-1 rounded-md w-full text-left hover:bg-primary-content${
+          selected ? ' bg-primary-content' : ''
         }`}
       >
         <Link
@@ -33,7 +33,7 @@ const ChatsList: FC<Props> = ({ spaceId, items, className, ...rest }) => (
               isOnline ? ' online' : ''
             }`}
           >
-            <div className="bg-neutral-focus text-neutral-content rounded-full w-7 h-7">
+            <div className="bg-secondary-focus text-neutral-content rounded-full w-7 h-7">
               {avatarUrl ? (
                 <Image
                   priority

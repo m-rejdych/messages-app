@@ -70,7 +70,7 @@ const Profile: NextPageWithLayout = () => {
             data.avatarUrl ? '' : ' placeholder'
           } relative self-center`}
         >
-          <div className="flex flex-col items-center justify-center bg-neutral-focus text-neutral-content rounded-full w-40 h-40 overflow-hidden">
+          <div className="flex flex-col items-center justify-center bg-secondary-focus text-neutral-content rounded-full w-40 h-40 overflow-hidden">
             {data.avatarUrl ? (
               <Image
                 priority

@@ -1,10 +1,17 @@
-import { type FC, useState } from 'react';
+import { type FC, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { signOut } from 'next-auth/react';
-import { MdMenu, MdNotifications } from 'react-icons/md';
+import {
+  MdMenu,
+  MdNotifications,
+  MdNightlight,
+  MdWbSunny,
+} from 'react-icons/md';
 
 import Menu from '../../components/common/menu';
+import { Theme } from '../../types/theme';
+import { getTheme } from '../../utils/theme';
 import type { Item } from '../../types/common/menu';
 
 enum MenuItemValue {
@@ -26,6 +33,11 @@ const MENU_ITEMS: Item<MenuItemValue>[] = [
 const NavBar: FC = () => {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<string | null>(null);
+
+  useEffect(() => {
+    setTheme(getTheme());
+  }, []);
 
   const handleMenuItemClick = async (value: MenuItemValue): Promise<void> => {
     try {
@@ -42,6 +54,20 @@ const NavBar: FC = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const handleChangeTheme = (): void => {
+    const html = document.querySelector('html');
+    if (!html) return;
+
+    const newTheme =
+      localStorage.getItem('theme') === Theme.Night
+        ? Theme.Winter
+        : Theme.Night;
+    localStorage.setItem('theme', newTheme);
+
+    html.setAttribute('data-theme', newTheme);
+    setTheme(newTheme);
   };
 
   return (
@@ -68,6 +94,16 @@ const NavBar: FC = () => {
         </Link>
       </div>
       <div className="navbar-end">
+        <button
+          className="btn btn-circle btn-ghost mr-4"
+          onClick={handleChangeTheme}
+        >
+          {theme === Theme.Night ? (
+            <MdNightlight className="text-2xl" />
+          ) : (
+            <MdWbSunny className="text-2xl" />
+          )}
+        </button>
         <button className="btn btn-ghost btn-circle">
           <div className="indicator">
             <MdNotifications className="text-2xl" />

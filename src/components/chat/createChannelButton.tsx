@@ -17,7 +17,9 @@ const CreateChannelButton: FC<Props> = ({ className, onClick, ...rest }) => {
     <>
       <button
         {...rest}
-        className={`btn btn-square btn-sm${className ? ` ${className}` : ''}`}
+        className={`btn btn-square btn-sm${
+          className ? ` ${className}` : ''
+        }`}
         onClick={handleClick}
       >
         <MdAdd className="text-2xl" />
